@@ -5,7 +5,7 @@ COPT = -O3
 CFLAGS = $(CWARN) $(COPT) $(CINC)
 
 all:
-		$(MAKE) scsi-`uname -s`.o
+		$(MAKE) scsi-`uname -s | cut -d_ -f1`.o
 
 scsi-IRIX.o:		ScsiTransport.h scsi-IRIX.c
 scsi-SunOS.o:		ScsiTransport.h scsi-SunOS.c

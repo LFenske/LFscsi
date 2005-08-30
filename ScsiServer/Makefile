@@ -19,7 +19,7 @@ OBJS-Linux = $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-Linux.o
 OBJS-NetBSD= $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-NetBSD.o
 
 all:
-		$(MAKE) scsiserver-`uname -s`
+		$(MAKE) scsiserver-`uname -s | cut -d_ -f1`
 
 .PHONY: $(SCSITRANSPORT)/scsi-IRIX.o
 $(SCSITRANSPORT)/scsi-IRIX.o:
