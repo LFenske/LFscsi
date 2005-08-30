@@ -10,6 +10,9 @@ CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
            bool evpd, int page_code)   /* size, timeout */
 {
   byte cdb[6];
+  VECTOR cdbvec;
+  cdbvec.dat = &cdb;
+  cdbvec.len = sizeof(cdb);
   int thissize = (common->size != NOSIZE) ? common->size : 0xff;
   VECTOR retval;
   retval.dat = malloc(thissize);
@@ -22,7 +25,7 @@ CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
   cdb[5] = 0;
   send_cdb(device, common,
 	   DIRECTION_IN,
-	   cdb, sizeof(cdb),
+	   cdbvec,
 	   retval,
 	   5.);
   return retval;

@@ -16,7 +16,7 @@
 void send_cdb(SCSI_HANDLE device,
               COMMON_PARAMS common,
 	      DIRECTION dir,
-	      byte *cdb, int cdb_len,
+	      VECTOR cdb,
 	      VECTOR dat,
 	      float default_timeout);
 
