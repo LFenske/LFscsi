@@ -12,6 +12,7 @@ scsi-SunOS.o:		ScsiTransport.h scsi-SunOS.c
 scsi-Linux.o:		ScsiTransport.h scsi-Linux.c
 scsi-NetBSD.o:		ScsiTransport.h scsi-NetBSD.c
 scsi-CYGWIN.o:		ScsiTransport.h scsi-CYGWIN.c
+scsi-Template.o:	ScsiTransport.h scsi-Template.c
 
 clean:
 		rm -f *.o
