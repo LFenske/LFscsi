@@ -25,31 +25,31 @@ all:
 
 .PHONY: $(SCSITRANSPORT)/scsi-IRIX.o
 $(SCSITRANSPORT)/scsi-IRIX.o:
-		cd $(SCSITRANSPORT); make
+		cd $(SCSITRANSPORT); $(MAKE)
 scsiserver-IRIX:	$(OBJS-IRIX)
 		$(CC) -o $@ $^ $(LIBS-IRIX)
 
 .PHONY: $(SCSITRANSPORT)/scsi-SunOS.o
 $(SCSITRANSPORT)/scsi-SunOS.o:
-		cd $(SCSITRANSPORT); make
+		cd $(SCSITRANSPORT); $(MAKE)
 scsiserver-SunOS:	$(OBJS-SunOS)
 		$(CC) -o $@ $^ $(LIBS-SunOS)
 
 .PHONY: $(SCSITRANSPORT)/scsi-Linux.o
 $(SCSITRANSPORT)/scsi-Linux.o:
-		cd $(SCSITRANSPORT); make
+		cd $(SCSITRANSPORT); $(MAKE)
 scsiserver-Linux:	$(OBJS-Linux)
 		$(CC) -o $@ $^ $(LIBS-Linux)
 
 .PHONY: $(SCSITRANSPORT)/scsi-NetBSD.o
 $(SCSITRANSPORT)/scsi-NetBSD.o:
-		cd $(SCSITRANSPORT); make
+		cd $(SCSITRANSPORT); $(MAKE)
 scsiserver-NetBSD:	$(OBJS-NetBSD)
 		$(CC) -o $@ $^ $(LIBS-NetBSD)
 
 .PHONY: $(SCSITRANSPORT)/scsi-CYGWIN.o
 $(SCSITRANSPORT)/scsi-CYGWIN.o:
-		cd $(SCSITRANSPORT); make
+		cd $(SCSITRANSPORT); $(MAKE)
 scsiserver-CYGWIN:	$(OBJS-CYGWIN)
 		$(CC) -o $@ $^ $(LIBS-CYGWIN)
 
