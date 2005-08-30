@@ -10,7 +10,12 @@ typedef char bool;
 typedef struct {
   byte *dat;
   int   len;
-} vector;
+} VECTOR;
+
+typedef struct {
+  int size;
+  float timeout;
+} *COMMON_PARAMS;
 
 #include "send_cdb.h"
 

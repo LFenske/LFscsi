@@ -12,13 +12,12 @@
 #define GLOBAL extern
 #endif
 
-GLOBAL int size;
-
 
 void send_cdb(SCSI_HANDLE device,
+              COMMON_PARAMS common,
 	      DIRECTION dir,
 	      byte *cdb, int cdb_len,
-	      vector dat,
+	      VECTOR dat,
 	      float default_timeout);
 
 
