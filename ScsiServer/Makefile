@@ -11,12 +11,14 @@ LIBS-IRIX  = -lds
 LIBS-SunOS = -lsocket
 LIBS-Linux =
 LIBS-NetBSD= -lutil
+LIBS-CYGWIN=
 
 OBJS-COMMON = scsiserver.o
 OBJS-IRIX  = $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-IRIX.o
 OBJS-SunOS = $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-SunOS.o
 OBJS-Linux = $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-Linux.o
 OBJS-NetBSD= $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-NetBSD.o
+OBJS-CYGWIN= $(OBJS-COMMON) $(SCSITRANSPORT)/scsi-CYGWIN.o
 
 all:
 		$(MAKE) scsiserver-`uname -s | cut -d_ -f1`
@@ -44,6 +46,12 @@ $(SCSITRANSPORT)/scsi-NetBSD.o:
 		cd $(SCSITRANSPORT); make
 scsiserver-NetBSD:	$(OBJS-NetBSD)
 		$(CC) -o $@ $^ $(LIBS-NetBSD)
+
+.PHONY: $(SCSITRANSPORT)/scsi-CYGWIN.o
+$(SCSITRANSPORT)/scsi-CYGWIN.o:
+		cd $(SCSITRANSPORT); make
+scsiserver-CYGWIN:	$(OBJS-CYGWIN)
+		$(CC) -o $@ $^ $(LIBS-CYGWIN)
 
 scsiserver.o:	$(SCSITRANSPORT_H) scsiserver.c
 
