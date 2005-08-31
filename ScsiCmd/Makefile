@@ -11,12 +11,17 @@ SCSITRANSPORT_H = $(SCSITRANSPORT)/ScsiTransport.h
 
 Q=@
 
-all: $(LIB)
-
 CSRCS =      \
+common.c     \
 send_cdb.c   \
 CmdInquiry.c \
 # this line intentionally left blank
+
+PROGS = \
+scsi-inquiry \
+# this line intentionally left blank
+
+all: $(LIB) $(PROGS)
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
@@ -56,4 +61,7 @@ depend:
 .PHONE: TAGS
 TAGS:
 	emacs-etags *.[ch]*
+
+scsi-inquiry:	scsi-inquiry.o ../ScsiTransport/scsi.o $(LIB)
+		gcc -o $@ $^
 

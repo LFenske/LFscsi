@@ -6,6 +6,7 @@ CFLAGS = $(CWARN) $(COPT) $(CINC)
 
 all:
 		$(MAKE) scsi-`uname -s | cut -d_ -f1`.o
+		ln -f scsi-`uname -s | cut -d_ -f1`.o scsi.o
 
 scsi-IRIX.o:		ScsiTransport.h scsi-IRIX.c
 scsi-SunOS.o:		ScsiTransport.h scsi-SunOS.c

@@ -6,7 +6,7 @@
 
 
 VECTOR
-CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
+CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
            bool evpd, int page_code);   /* size, timeout */
 
 

@@ -7,7 +7,7 @@
 
 
 VECTOR
-CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
+CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
            bool evpd, int page_code)   /* size, timeout */
 {
   byte cdb[6];
@@ -26,7 +26,7 @@ CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
   cdb[3] = 0;
   cdb[4] = thissize;
   cdb[5] = 0;
-  send_cdb(device, common,
+  send_cdb(handle, common,
 	   DIRECTION_IN,
 	   cdbvec,
 	   retval,

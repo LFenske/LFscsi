@@ -20,4 +20,9 @@ typedef struct {
 
 #include "send_cdb.h"
 
+
+void common_construct(COMMON_PARAMS *pCommon);
+void  common_destruct(COMMON_PARAMS *pCommon);
+
+
 #endif /* __common_h */
