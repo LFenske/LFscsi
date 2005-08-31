@@ -109,7 +109,7 @@ scsi_cdb(
   *stt_lenp = hdr.sb_len_wr;
   *dat_lenp = hdr.dxfer_len - hdr.resid;
 
-  if (direction == DIRECTION_IN && debug && retval != -1) {
+  if (debug && direction == DIRECTION_IN && retval != -1) {
     int i;
     fprintf(stderr, "SCSI data read:\n");
     for (i=0; i<*dat_lenp; i++)
