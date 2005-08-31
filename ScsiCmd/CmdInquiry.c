@@ -2,6 +2,7 @@
 
 #include "CmdInquiry.h"
 #include "ScsiTransport.h"
+#include "common.h"
 #include <stdlib.h>   /* for malloc */
 
 
@@ -11,12 +12,14 @@ CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
 {
   byte cdb[6];
   VECTOR cdbvec;
+  VECTOR retval;
+  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
+
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
-  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
-  VECTOR retval;
   retval.dat = malloc(thissize);
   retval.len = thissize;
+
   cdb[0] = 0x12;
   cdb[1] = evpd;
   cdb[2] = page_code;

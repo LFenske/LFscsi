@@ -15,6 +15,7 @@ typedef struct {
 typedef struct {
   int size;
   float timeout;
+  VECTOR stt;
 } *COMMON_PARAMS;
 
 #include "send_cdb.h"

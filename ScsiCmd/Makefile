@@ -13,9 +13,10 @@ Q=@
 
 all: $(LIB)
 
-CSRCS = \
+CSRCS =      \
+send_cdb.c   \
 CmdInquiry.c \
-#
+# this line intentionally left blank
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
