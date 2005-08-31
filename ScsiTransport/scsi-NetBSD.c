@@ -5,19 +5,13 @@
 #include <fcntl.h>	/* for O_RDWR */
 #include <string.h>	/* for memset */
 #include <unistd.h>	/* for close */
-#include "scsiserver.h"
+#include <stdlib.h>     /* for free, malloc */
+#include "ScsiTransport.h"
 
 
 #define debug 0
 
 #define TIMEOUT_DEFAULT 30
-
-#if 0
-typedef char bool;
-#define FALSE 0
-#define TRUE (!FALSE)
-#endif
-
 
 #define B_WRITE 'w'
 #define B_READ  'r'
@@ -25,32 +19,49 @@ typedef char bool;
 #define MIN(a,b)  (((a) < (b)) ? (a) : (b))
 
 
-int
-send_cdb(devfile, direction, cdb, cdb_len, dat, dat_lenp, stt, stt_lenp, timeout)
-     char *devfile;
-     int direction;
-     unsigned char *cdb,    *dat,     *stt;
-     int            cdb_len,*dat_lenp,*stt_lenp;
-     int timeout;
+#define GET_FD(__handle)  (*(int*)((__handle)->context))
+
+
+static int
+scsi_close(SCSI_HANDLE *pDevice)
+{
+  int fd = GET_FD(*pDevice);
+  close(fd);
+  free((*pDevice)->context);
+  free(*pDevice);
+  *pDevice = NULL;
+  return 0;
+}
+
+
+static int
+scsi_cdb(
+         SCSI_HANDLE device,
+         DIRECTION direction,
+         unsigned char *cdb, int  cdb_len ,
+         unsigned char *dat, int *dat_lenp,
+         unsigned char *stt, int *stt_lenp,
+         float timeout)
 {
   int retval = 0;
   scsireq_t req;
-  int fd;
+  int fd = GET_FD(device);
 
   if (debug) {
-    int i;
-    fprintf(stderr, "devfile = '%s'\n", devfile);
+    fprintf(stderr, "devfile = %d\n", fd);
     fprintf(stderr, "cdb = 0x%.8lx, cdb_len =  %d\n", (long)cdb, cdb_len );
     fprintf(stderr, "dat = 0x%.8lx, dat_len =  %d\n", (long)dat,*dat_lenp);
     fprintf(stderr, "stt = 0x%.8lx, stt_len =  %d\n", (long)stt,*stt_lenp);
-    fprintf(stderr, "timeout = %d\n", timeout);
-    fprintf(stderr, "cdb:\n");
+    fprintf(stderr, "timeout = %f\n", timeout);
+  }
+  if (debug) {
+    int i;
+    fprintf(stderr, "SCSI CDB:\n");
     for (i=0; i<cdb_len; i++)
-       fprintf(stderr, " %02x", cdb[i]);
+      fprintf(stderr, " %02x", cdb[i]);
     fprintf(stderr, "\n");
   }
-
-  if (debug && direction == B_WRITE) {
+  if (direction == DIRECTION_OUT && debug) {
     int i;
     fprintf(stderr, "SCSI data to write:\n");
     for (i=0; i<*dat_lenp; i++)
@@ -59,16 +70,12 @@ send_cdb(devfile, direction, cdb, cdb_len, dat, dat_lenp, stt, stt_lenp, timeout
   }
 
 
-  fd = open(devfile, O_RDWR);
-  if (fd < 0) {
-     perror("open device");
-     retval = -1;
-     return retval;
-  }
-
   memset(&req, 0, sizeof(req));
-  req.flags    = (direction == B_READ) ? SCCMD_READ : SCCMD_WRITE;
-  req.timeout  = timeout * 1000;	/* given seconds, need ms */
+  req.flags    =
+       (direction==DIRECTION_OUT) ? SCCMD_WRITE :
+       ((direction==DIRECTION_IN) ? SCCMD_READ  :
+        SCCMD_READ);
+  req.timeout  = (int)(timeout * 1000);	/* given seconds, need ms */
   memcpy(req.cmd, cdb, cdb_len);
   req.cmdlen   = cdb_len;
   req.databuf  = dat;
@@ -80,8 +87,8 @@ send_cdb(devfile, direction, cdb, cdb_len, dat, dat_lenp, stt, stt_lenp, timeout
 
   *dat_lenp = req.datalen_used;
   *stt_lenp = MIN(*stt_lenp, req.senselen_used);
-  /*debug* /fprintf(stderr, "NetBSD: datlen = %d\n", *dat_lenp); /**/
-  /*debug* /fprintf(stderr, "NetBSD: sttlen = %d\n", *stt_lenp); /**/
+  /*debug* /fprintf(stderr, "NetBSD: datlen = %d\n", *dat_lenp); / **/
+  /*debug* /fprintf(stderr, "NetBSD: sttlen = %d\n", *stt_lenp); / **/
   memcpy(stt, req.sense, *stt_lenp);
   /* req.status;   unused */
   /* req.error;    unused */
@@ -92,40 +99,81 @@ send_cdb(devfile, direction, cdb, cdb_len, dat, dat_lenp, stt, stt_lenp, timeout
      retval = 0;
      break;
   case SCCMD_TIMEOUT:
-     fprintf(stderr, "%s: SCSI command timed out\n", devfile);
+     fprintf(stderr, "SCSI command timed out\n");
      retval = -1;
      break;
   case SCCMD_BUSY:
-     fprintf(stderr, "%s: device is busy\n", devfile);
+     fprintf(stderr, "device is busy\n");
      retval = -1;
      break;
   case SCCMD_SENSE:
-     fprintf(stderr, "%s: returned sense\n", devfile);
+     fprintf(stderr, "returned sense\n");
      retval = -1;
      break;
   default:
-     fprintf(stderr, "%s: device had unknown status %x\n", devfile, req.retsts);
+     fprintf(stderr, "device had unknown status %x\n", req.retsts);
      retval = -1;
      break;
   }
 
-  if (debug && direction == B_READ && req.retsts == SCCMD_OK) {
-     int i;
-     fprintf(stderr, "SCSI data read:\n");
-     for (i=0; i<*dat_lenp; i++)
-        fprintf(stderr, " %02x", dat[i]);
-     fprintf(stderr, "\n");
+  if (debug && direction == DIRECTION_IN && req.retsts == SCCMD_OK) {
+    int i;
+    fprintf(stderr, "SCSI data read:\n");
+    for (i=0; i<*dat_lenp; i++)
+      fprintf(stderr, " %02x", dat[i]);
+    fprintf(stderr, "\n");
   }
 
   if (debug && req.retsts == SCCMD_SENSE) {
-     int i;
-     fprintf(stderr, "SCSI request sense:\n");
-     for (i=0; i<*stt_lenp; i++)
-        fprintf(stderr, " %02x", stt[i]);
-     fprintf(stderr, "\n");
+    int i;
+    fprintf(stderr, "SCSI request sense:\n");
+    for (i=0; i<*stt_lenp; i++)
+      fprintf(stderr, " %02x", stt[i]);
+    fprintf(stderr, "\n");
   }
-
-  close(fd);
+  if (debug) fprintf(stderr, "retval = %d\n", retval);
   return(retval);
 }
+
+
+static int
+scsi_reset(SCSI_HANDLE device, RESET_LEVEL level)
+{
+  /* int fd = GET_FD(device); */
+  switch (level) {
+  case RESET_DEVICE: /*stub*/ break;
+  case RESET_BUS   : /*stub*/ break;
+  }
+  return 0;
+}
+
+
+static int
+scsi_scanbus(SCSI_HANDLE device)
+{
+  /*stub*/
+  return 0;
+}
+
+
+int
+scsi_open(SCSI_HANDLE *pDevice, void *whatever)
+{
+  int *pfd;
+  if (debug) fprintf(stderr, "scsi_open '%s'\n", (char*)whatever);
+  *pDevice = malloc(sizeof(**pDevice));
+  pfd      = malloc(sizeof( *pfd    ));
+  *pfd = open((char*)whatever, O_RDWR);
+  if (*pfd < 0) {
+    perror("open device");
+    return -1;
+  }
+  (*pDevice)->close   = scsi_close  ;
+  (*pDevice)->cdb     = scsi_cdb    ;
+  (*pDevice)->reset   = scsi_reset  ;
+  (*pDevice)->scanbus = scsi_scanbus;
+  (*pDevice)->context = pfd;
+  return 0;
+}
+
 
