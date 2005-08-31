@@ -11,7 +11,7 @@ CmdInquiry(SCSI_HANDLE device, COMMON_PARAMS common,
 {
   byte cdb[6];
   VECTOR cdbvec;
-  cdbvec.dat = &cdb;
+  cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
   int thissize = (common->size != NOSIZE) ? common->size : 0xff;
   VECTOR retval;
