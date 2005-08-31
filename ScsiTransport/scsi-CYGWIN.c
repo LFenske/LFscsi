@@ -9,7 +9,7 @@
 #include "ScsiTransport.h"
 
 
-#define debug 0
+#define debug 2
 #define MAX_NUM_LIBRARIES 8
 #define SENSE_DATA_SIZE   52
 
@@ -24,9 +24,7 @@ typedef struct _SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER {
 static int
 scsi_close(SCSI_HANDLE *pDevice)
 {
-  /*stub*/
-  CloseHandle(pDevice);
-  free((*pDevice)->context);
+  CloseHandle((*pDevice)->context);
   free(*pDevice);
   *pDevice = NULL;
   return 0;
@@ -74,13 +72,13 @@ scsi_cdb(
       //fprintf(stderr"LUN ID is              %d\n", unLun);
       fprintf(stderr,"Data IO Directions is  ");
       switch (direction) {
-      case 0:
+      case DIRECTION_OUT:
           fprintf(stderr,"OUT - (From Host to Device)\n");
           break;
-      case 1:
+      case DIRECTION_IN:
           fprintf(stderr,"IN - (From Device to Host)\n");
           break;
-      case 2:
+      case DIRECTION_NONE:
           fprintf(stderr,"None - (No Data transfer)\n");
           break;
       }
@@ -153,7 +151,7 @@ scsi_cdb(
 
       ulLength = sizeof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER)+ sptdwb.sptd.SenseInfoLength;
 
-      retval = DeviceIoControl(device,
+      retval = DeviceIoControl(device->context,
                                 IOCTL_SCSI_PASS_THROUGH_DIRECT,
                                 &sptdwb,
                                 ulLength,
@@ -183,7 +181,7 @@ scsi_cdb(
                                  NULL );
 
          if (ulCount != 0)
-             fprintf(stderr,"%s", errorBuffer);
+             fprintf(stderr,"%s", (char*)errorBuffer);
          else
              fprintf(stderr,"Format error message failed.  Error: %lu\n", GetLastError());
 
@@ -303,7 +301,7 @@ scsi_scanbus(SCSI_HANDLE device)
     // Zero out the Buffer
     memset(sBuffer,0,un_Buffersize);
 
-    bStatus = DeviceIoControl(device,
+    bStatus = DeviceIoControl(device->context,
                          IOCTL_SCSI_GET_INQUIRY_DATA,
                          NULL,
                          0,
@@ -330,7 +328,7 @@ scsi_scanbus(SCSI_HANDLE device)
                                     NULL );
 
             if (ulCount != 0)
-                printf("%s", errorBuffer);
+                printf("%s", (char*)errorBuffer);
             else
                 printf("Format error message failed.  Error: %lu\n", GetLastError());
 
@@ -404,13 +402,10 @@ int
 scsi_open(SCSI_HANDLE *pDevice, void *whatever)
 {
   HANDLE pfd;
-  char   *NTDevice;
+  char   NTDevice[80];
 
   if (debug) fprintf(stderr, "scsi_open '%s'\n", (char*)whatever);
-  /*stub*/
   *pDevice = malloc(sizeof(**pDevice));
-
-  pfd      = malloc(sizeof( *pfd    ));
 
   strcpy(NTDevice,"\\\\.\\");
   strcat(NTDevice,whatever);
@@ -421,15 +416,33 @@ scsi_open(SCSI_HANDLE *pDevice, void *whatever)
 
   if ((pfd == INVALID_HANDLE_VALUE) || (pfd == NULL))
   {
-      perror("open device");
-      return (-1);
+    LPVOID         errorBuffer;
+    unsigned long  ulCount;
+    DWORD          dwERRorCode = GetLastError();
+    //printf("Error in Scanning SCSI BUS %s\n", csDevFile);
+    //printf("Error was %lu\n",
+
+    ulCount = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+                            NULL,
+                            dwERRorCode,
+                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // 0,
+                            (LPTSTR) &errorBuffer, // errorBuffer,
+                            sizeof(errorBuffer), // 0,
+                            NULL );
+
+    if (ulCount != 0)
+      printf("%s", (char*)errorBuffer);
+    else
+      printf("Format error message failed.  Error: %lu\n", GetLastError());
+
+    free(errorBuffer);
+    return (-1);
   }
   (*pDevice)->close   = scsi_close  ;
   (*pDevice)->cdb     = scsi_cdb    ;
   (*pDevice)->reset   = scsi_reset  ;
   (*pDevice)->scanbus = scsi_scanbus;
   (*pDevice)->context = pfd;
-  (*pDevice)->context = NULL;
   return 0;
 }
 
