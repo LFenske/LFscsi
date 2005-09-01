@@ -62,6 +62,9 @@ depend:
 TAGS:
 	emacs-etags *.[ch]*
 
+../ScsiTransport/scsi.o:
+		cd ../ScsiTransport; $(MAKE)
+
 scsi-inquiry:	scsi-inquiry.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
 
