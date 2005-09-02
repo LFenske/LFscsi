@@ -19,7 +19,7 @@ int
 main(int argc, char**argv)
 {
   char *progname = argv[0];
-  char *device = getenv("DEVICE");
+  char *device = getenv("SCSI_DEVICE");
   COMMON_PARAMS common;
   VECTOR dat;
   bool raw = FALSE;
