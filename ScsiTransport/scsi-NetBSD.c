@@ -47,8 +47,14 @@ scsi_cdb(
   scsireq_t req;
   int fd = GET_FD(device);
 
+  if (fd < 0) {
+     if (debug) {
+        fprintf(stderr, "aborting because fd = %d\n", fd);
+     }
+     return -1;
+  }
   if (debug) {
-    fprintf(stderr, "devfile = %d\n", fd);
+    fprintf(stderr, "fd = %d\n", fd);
     fprintf(stderr, "cdb = 0x%.8lx, cdb_len =  %d\n", (long)cdb, cdb_len );
     fprintf(stderr, "dat = 0x%.8lx, dat_len =  %d\n", (long)dat,*dat_lenp);
     fprintf(stderr, "stt = 0x%.8lx, stt_len =  %d\n", (long)stt,*stt_lenp);
@@ -139,7 +145,13 @@ scsi_cdb(
 static int
 scsi_reset(SCSI_HANDLE device, RESET_LEVEL level)
 {
-  /* int fd = GET_FD(device); */
+  int fd = GET_FD(device);
+  if (fd < 0) {
+     if (debug) {
+        fprintf(stderr, "aborting because fd = %d\n", fd);
+     }
+     return -1;
+  }
   switch (level) {
   case RESET_DEVICE: /*stub*/ break;
   case RESET_BUS   : /*stub*/ break;
@@ -160,20 +172,21 @@ int
 scsi_open(SCSI_HANDLE *pDevice, void *whatever)
 {
   int *pfd;
+  int retval = 0;
   if (debug) fprintf(stderr, "scsi_open '%s'\n", (char*)whatever);
   *pDevice = malloc(sizeof(**pDevice));
   pfd      = malloc(sizeof( *pfd    ));
   *pfd = open((char*)whatever, O_RDWR);
   if (*pfd < 0) {
     perror("open device");
-    return -1;
+    retval = -1;
   }
   (*pDevice)->close   = scsi_close  ;
   (*pDevice)->cdb     = scsi_cdb    ;
   (*pDevice)->reset   = scsi_reset  ;
   (*pDevice)->scanbus = scsi_scanbus;
   (*pDevice)->context = pfd;
-  return 0;
+  return retval;
 }
 
 
