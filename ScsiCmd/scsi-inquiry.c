@@ -2,7 +2,7 @@
 #include "ScsiTransport.h"
 #include "common.h"
 
-#include <unistd.h>   /* for getopt */
+#include <unistd.h>   /* for getopt, isatty */
 #include <stdlib.h>   /* for strtol, exit */
 #include <limits.h>   /* for strtol */
 #include <stdio.h>    /* for printf, fprintf */
@@ -11,7 +11,7 @@
 void
 usage(char *progname)
 {
-  fprintf(stderr, "usage: %s [-d device] [-z size] [page code]\n", progname);
+  fprintf(stderr, "usage: %s [-d device] [-z size] [-r] [page code]\n", progname);
 }
 
 
@@ -22,6 +22,7 @@ main(int argc, char**argv)
   char *device = getenv("DEVICE");
   COMMON_PARAMS common;
   VECTOR dat;
+  bool raw = FALSE;
 
   int page = -1;
 
@@ -29,7 +30,7 @@ main(int argc, char**argv)
 
   {
     int ch;
-    while ((ch = getopt(argc, argv, "d:z:")) != -1) {
+    while ((ch = getopt(argc, argv, "d:z:r")) != -1) {
       switch (ch) {
       case 'd':
         {
@@ -41,6 +42,11 @@ main(int argc, char**argv)
           common->size = strtol(optarg, (char**)NULL, 0);
         }
         break;
+      case 'r':
+        {
+	  raw = TRUE;
+	}
+	break;
       case '?':
       default:
         {
@@ -82,7 +88,9 @@ main(int argc, char**argv)
       printf(" %.2x", (unsigned char)(common->stt.dat[i]));
     printf("\n");
   }
-  if (1) {
+  if (raw || !isatty(1)) {
+    write(1, dat.dat, dat.len);
+  } else {
     int i;
     printf("inquiry data:");
     for (i=0; i<dat.len; i++)
