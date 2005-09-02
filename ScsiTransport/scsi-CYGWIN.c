@@ -40,16 +40,26 @@ scsi_cdb(
          unsigned char *stt, int *stt_lenp,
          float timeout)
 {
-  int         retval = 0;
+  int         retval = 0,
+              MSdirection;
   ULONG       ulLength,
               ul_ReturnValue=0;
-  //ULONG       dwERRorCode = 0;
 
+  switch (direction) {
+      // Microsoft Data Direction is DIFFERENT than what is specified for DIRECTION ENUM
+      //#define SCSI_IOCTL_DATA_OUT               0
+      //#define SCSI_IOCTL_DATA_IN                1
+      //#define SCSI_IOCTL_DATA_UNSPECIFIED       2
+      case DIRECTION_NONE:  MSdirection = SCSI_IOCTL_DATA_UNSPECIFIED; break;
+      case DIRECTION_IN  :  MSdirection = SCSI_IOCTL_DATA_IN;          break;
+      case DIRECTION_OUT :  MSdirection = SCSI_IOCTL_DATA_OUT;         break;
+  }
   if (debug) {
     fprintf(stderr, "cdb = 0x%.8lx, cdb_len =  %d\n", (long)cdb, cdb_len );
     fprintf(stderr, "dat = 0x%.8lx, dat_len =  %d\n", (long)dat,*dat_lenp);
     fprintf(stderr, "stt = 0x%.8lx, stt_len =  %d\n", (long)stt,*stt_lenp);
     fprintf(stderr, "timeout = %f\n", timeout);
+    fprintf(stderr, "direction = %d, MSdirection = %d\n", direction, MSdirection);
   }
   if (debug) {
     int i;
@@ -85,11 +95,6 @@ scsi_cdb(
       fprintf(stderr,"CDB Length is          %d bytes\n", cdb_len);
       fprintf(stderr,"Length of expected IO  %d bytes\n", *dat_lenp);
       fprintf(stderr,"SCSI Timeout value     %lu seconds\n", (ULONG)timeout);
-     // printf("the entered CDB is:    ");
-     // for (ii=0; ii< cdb_len; ii++) {
-     //     printf("%x ", CDB[ii]);
-     // }
-     // printf("\n");
   }
   {
     /*stub*/
@@ -107,9 +112,9 @@ scsi_cdb(
       sptdwb.sptd.Lun = 0;
       sptdwb.sptd.CdbLength = cdb_len;
       sptdwb.sptd.SenseInfoLength = *stt_lenp;
-      sptdwb.sptd.DataIn = direction;
+      sptdwb.sptd.DataIn = MSdirection;
 
-      if (direction == SCSI_IOCTL_DATA_UNSPECIFIED) {
+      if (MSdirection == DIRECTION_NONE) {
           sptdwb.sptd.DataTransferLength = 0;
       }else {
           sptdwb.sptd.DataTransferLength = *dat_lenp;
@@ -136,16 +141,14 @@ scsi_cdb(
           }
           fprintf(stderr,"\n");
 
-          if (debug >= 2) {
+          if ((debug >= 2) && (direction == DIRECTION_OUT)) {
               // UINT        jj = 0;
-              if (direction == SCSI_IOCTL_DATA_OUT) {
-                  fprintf(stderr,"Sending Data Out (HEX):  \n");
-                 /* for (jj=0; jj < dat_lenp ; jj++) {
-                      printf("%x ", pDataBuffer[jj]);
-                  }
-                  printf("\n");
-                  */
+              fprintf(stderr,"Sending Data Out (HEX):  \n");
+             /* for (jj=0; jj < dat_lenp ; jj++) {
+                  printf("%x ", pDataBuffer[jj]);
               }
+              printf("\n");
+              */
           }
       }
 
@@ -190,10 +193,6 @@ scsi_cdb(
          return -1;
       }
 
-      //if (nDebugPrint && bDisplay && (direction == SCSI_IOCTL_DATA_IN)) {
-      //    printf("Size of Data Transfer is %lu\n", sptdwb.sptd.DataTransferLength);
-      // }
-
       if (debug) {
          fprintf(stderr," Returned Scsi_Status = %u\n",sptdwb.sptd.ScsiStatus);
          if (sptdwb.sptd.ScsiStatus != 0) {
@@ -201,7 +200,7 @@ scsi_cdb(
          }
       }
 
-      if (debug && (direction == SCSI_IOCTL_DATA_IN)) {
+      if (debug && (direction == DIRECTION_IN)) {
           fprintf(stderr," Data length ReturnValue is %lu\n", sptdwb.sptd.DataTransferLength);
       }
 
@@ -210,31 +209,27 @@ scsi_cdb(
           fprintf(stderr,"DeviceIoControl ReturnValue    = %lu\n", ul_ReturnValue);
       }
 
-      if (direction != SCSI_IOCTL_DATA_UNSPECIFIED) {
+      if (direction != DIRECTION_NONE) {
           *dat_lenp = sptdwb.sptd.DataTransferLength;
       } else {
           *dat_lenp = 0;
       }
 
-      //ScsiCmdStatus.bCompleted = TRUE;
-
       if (!(sptdwb.sptd.ScsiStatus))
       {
-
-         /* if (!bSCSIDev) {
+          /*if (!bSCSIDev) {
               unBusNumber = sptdwb.sptd.PathId;
               unTarget = sptdwb.sptd.TargetId;
               unLun = sptdwb.sptd.Lun;
-          } */
+          }  */
 
-          return sptdwb.sptd.ScsiStatus;
-          //return TRUE;
       } else {
           UINT        jj = 0;
           for(jj=0; jj< (unsigned int)stt_lenp; jj++)
               stt[jj] = sptdwb.ucSenseBuf[jj];
+          //return  sptdwb.sptd.ScsiStatus;
       }
-      return  sptdwb.sptd.ScsiStatus;
+      retval = sptdwb.sptd.ScsiStatus;
   }
 
   if (direction == DIRECTION_IN && debug && retval != -1) {
@@ -343,7 +338,7 @@ scsi_scanbus(SCSI_HANDLE device)
 
     //memset (Library_info, 0, (sizeof (S_LIBRARY_INFO)*8) );
     //display = 1;
-    //if (de) {
+    //if (display) {
         printf("Bus\n");
         printf("Num TID LUN Claimed String                        Inquiry Header\n");
         printf("--- --- --- ------- ----------------------------  -----------------------\n");
@@ -419,8 +414,6 @@ scsi_open(SCSI_HANDLE *pDevice, void *whatever)
     LPVOID         errorBuffer;
     unsigned long  ulCount;
     DWORD          dwERRorCode = GetLastError();
-    //printf("Error in Scanning SCSI BUS %s\n", csDevFile);
-    //printf("Error was %lu\n",
 
     ulCount = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
                             NULL,
