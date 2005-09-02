@@ -9,7 +9,7 @@
 #include "ScsiTransport.h"
 
 
-#define debug 2
+#define debug 0
 #define MAX_NUM_LIBRARIES 8
 #define SENSE_DATA_SIZE   52
 
