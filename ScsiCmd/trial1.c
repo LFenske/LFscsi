@@ -11,11 +11,34 @@
 #include <stdio.h>    /* for printf, fprintf */
 
 
-void
-usage(char *progname)
-{
-  fprintf(stderr, "usage: %s [-d device] [-z size] [-r] [page code]\n", progname);
-}
+typedef enum {
+  CMD_INQUIRY,
+  CMD_LAST
+} CMD;
+
+
+typedef void (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
+                     int argc, char**argv);
+
+
+typedef struct {
+  CMD cmd;
+  char *name;
+  LINE line;
+  DIRECTION dir;
+  char *printer;
+  char *short_help, *long_help;
+} DEFINITION;
+
+
+char *short_help_pre = "[-d device] ";
+char *long_help_common = "\
+-h       : print help\n\
+-d device: device specifier, overrides $SCSI_DEVICE\n\
+-z size  : number of bytes of data in or out\n\
+-r       : raw output, even if to stdout\n\
+";
+VECTOR dat;
 
 
 VECTOR
@@ -47,42 +70,64 @@ CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
 }
 
 
+void
+LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
+            int argc, char**argv)
+{
+  int page = -1;
+
+  if (argc > 0) {
+    page = strtol(argv[0], (char**)NULL, 0);
+    argc--;
+    argv++;
+  }
+
+  if (argc > 0) {
+    /*usage(progname);*/
+    exit(-1);
+  }
+
+  {
+    dat = CmdInquiry(handle, common,
+                     (page == -1) ? 0 : 1,
+                     (page == -1) ? 0 : page
+                     );
+  }
+}
+
+
+DEFINITION def[] = {
+  {CMD_INQUIRY, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+  {CMD_LAST, NULL, NULL, DIRECTION_NONE, NULL, NULL}
+};
+
+
 int
 main(int argc, char**argv)
 {
   char *progname = argv[0];
   char *device = getenv("SCSI_DEVICE");
+  SCSI_HANDLE handle;
   COMMON_PARAMS common;
-  VECTOR dat;
+  bool help = FALSE;
   bool raw = FALSE;
 
-  int page = -1;
+  int cmdnum = 0;
 
   common_construct(&common);
 
   {
     int ch;
-    while ((ch = getopt(argc, argv, "d:z:r")) != -1) {
+    while ((ch = getopt(argc, argv, "hd:z:r")) != -1) {
       switch (ch) {
-      case 'd':
-        {
-          device = optarg;
-        }
-        break;
-      case 'z':
-        {
-          common->size = strtol(optarg, (char**)NULL, 0);
-        }
-        break;
-      case 'r':
-        {
-	  raw = TRUE;
-	}
-	break;
+      case 'h': help = TRUE; break;
+      case 'd': device = optarg; break;
+      case 'z': common->size = strtol(optarg, (char**)NULL, 0); break;
+      case 'r': raw = TRUE; break;
       case '?':
       default:
         {
-          usage(progname);
+          /*usage(progname);*/
           exit(-1);
         }
         break;
@@ -92,26 +137,14 @@ main(int argc, char**argv)
   argc -= optind;
   argv += optind;
 
-  if (argc > 0) {
-    page = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  scsi_open(&handle, device);
+
+  (*(def[cmdnum].line))(handle, common, argc, argv);
+  if (def[cmdnum].dir == DIRECTION_IN) {
+    /*invoke def[cmdnum].printer */
   }
 
-  if (argc > 0) {
-    usage(progname);
-    exit(-1);
-  }
-
-  {
-    SCSI_HANDLE handle;
-    scsi_open(&handle, device);
-    dat = CmdInquiry(handle, common,
-                     (page == -1) ? 0 : 1,
-                     (page == -1) ? 0 : page
-                     );
-    (handle->close)(&handle);
-  }
+  (handle->close)(&handle);
 
   if (common->stt.len > 0) {
     int i;
