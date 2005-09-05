@@ -68,3 +68,6 @@ TAGS:
 scsi-inquiry:	scsi-inquiry.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
 
+trial1:		trial1.o common.o send_cdb.o ../ScsiTransport/scsi.o
+		gcc -o $@ $^
+
