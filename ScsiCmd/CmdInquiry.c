@@ -1,13 +1,13 @@
 
 
 #ifdef ENUM
-  CMD_INQUIRY,
+  CMD_Inquiry,
 #endif
 
 
 #ifdef DEF
-  {CMD_INQUIRY, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
-  {CMD_INQUIRY, "inq"    , LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+  {CMD_Inquiry, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+  {CMD_Inquiry, "inq"    , LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
 #endif
 
 

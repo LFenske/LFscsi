@@ -1,13 +1,13 @@
 
 
 #ifdef ENUM
-  CMD_TESTUNITREADY,
+  CMD_TestUnitReady,
 #endif
 
 
 #ifdef DEF
-  {CMD_TESTUNITREADY, "testunitready", LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
-  {CMD_TESTUNITREADY, "tur"          , LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
+  {CMD_TestUnitReady, "testunitready", LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
+  {CMD_TestUnitReady, "tur"          , LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
 #endif
 
 
