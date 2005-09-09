@@ -16,6 +16,7 @@ common.c           \
 send_cdb.c         \
 CmdInquiry.c       \
 CmdTestUnitReady.c \
+#CmdTemplate.c      \
 # this line intentionally left blank
 
 PROGS = \
