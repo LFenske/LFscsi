@@ -7,6 +7,7 @@
 
 #ifdef DEF
   {CMD_INQUIRY, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+  {CMD_INQUIRY, "inq"    , LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
 #endif
 
 
