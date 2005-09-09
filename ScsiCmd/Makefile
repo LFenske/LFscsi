@@ -19,12 +19,10 @@ CmdInquiry.c \
 
 PROGS = \
 scsi \
-scsi-inquiry \
 # this line intentionally left blank
 
 MAINS = \
 scsi.o \
-scsi-inquiry.o \
 # this line intentionally left blank
 
 all: $(LIB) $(PROGS)
@@ -61,11 +59,11 @@ endif
 
 .PHONY: clean
 clean:
-		-rm -f $(OBJS) $(DEPS) *.map .\#*
+		-rm -f $(OBJS) $(DEPS) allcommands.h *.map .\#*
 
 .PHONY: clobber
 clobber:	clean
-		-rm -f $(LIB) *~ core *.core TAGS
+		-rm -f $(LIB) $(PROGS) *~ core *.core TAGS
 
 .PHONY: depend
 depend:
@@ -76,9 +74,6 @@ TAGS:
 
 ../ScsiTransport/scsi.o:
 		cd ../ScsiTransport; $(MAKE)
-
-scsi-inquiry:	scsi-inquiry.o ../ScsiTransport/scsi.o $(LIB)
-		gcc -o $@ $^
 
 scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
