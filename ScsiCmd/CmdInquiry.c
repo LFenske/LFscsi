@@ -1,10 +1,54 @@
-#define __CmdInquiry_c
 
+
+#ifdef ENUM
+  CMD_INQUIRY,
+#endif
+
+
+#ifdef DEF
+  {CMD_INQUIRY, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+#endif
+
+
+#ifdef LINE
 #include "CmdInquiry.h"
+
+int
+LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
+            int argc, char**argv)
+{
+  int page = -1;
+
+  if (argc > 0) {
+    page = strtol(argv[0], (char**)NULL, 0);
+    argc--;
+    argv++;
+  }
+
+  if (argc > 0) {
+    /*stub: usage(progname);*/
+    return -1;
+  }
+
+  {
+    dat = CmdInquiry(handle, common,
+                     (page == -1) ? 0 : 1,
+                     (page == -1) ? 0 : page
+                     );
+  }
+  return 0;
+}
+#endif
+
+
+#ifdef COMMAND
+#define __CmdInquiry_c
+#include "CmdInquiry.h"
+#undef  __CmdInquiry_c
+
 #include "ScsiTransport.h"
 #include "common.h"
 #include <stdlib.h>   /* for malloc */
-
 
 VECTOR
 CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
@@ -33,3 +77,6 @@ CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
 	   5.);
   return retval;
 }
+#endif
+
+

@@ -1,7 +1,3 @@
-#define __CmdInquiry_c
-#include "CmdInquiry.h"
-#undef  __CmdInquiry_c
-
 #include "ScsiTransport.h"
 #include "common.h"
 
@@ -9,10 +5,12 @@
 #include <stdlib.h>   /* for malloc, strtol, exit */
 #include <limits.h>   /* for strtol */
 #include <stdio.h>    /* for printf, fprintf */
-
+#include <string.h>   /* for strcmp */
 
 typedef enum {
-  CMD_INQUIRY,
+#define ENUM
+#include "allcommands.h"
+#undef ENUM
   CMD_LAST
 } CMD;
 
@@ -41,64 +39,15 @@ char *long_help_common = "\
 VECTOR dat;
 
 
-VECTOR
-CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
-           bool evpd, int page_code)   /* size, timeout */
-{
-  byte cdb[6];
-  VECTOR cdbvec;
-  VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
-
-  cdbvec.dat = cdb;
-  cdbvec.len = sizeof(cdb);
-  retval.dat = malloc(thissize);
-  retval.len = thissize;
-
-  cdb[0] = 0x12;
-  cdb[1] = evpd;
-  cdb[2] = page_code;
-  cdb[3] = 0;
-  cdb[4] = thissize;
-  cdb[5] = 0;
-  send_cdb(handle, common,
-	   DIRECTION_IN,
-	   cdbvec,
-	   retval,
-	   5.);
-  return retval;
-}
-
-
-int
-LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
-            int argc, char**argv)
-{
-  int page = -1;
-
-  if (argc > 0) {
-    page = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
-  }
-
-  if (argc > 0) {
-    /*stub: usage(progname);*/
-    return -1;
-  }
-
-  {
-    dat = CmdInquiry(handle, common,
-                     (page == -1) ? 0 : 1,
-                     (page == -1) ? 0 : page
-                     );
-  }
-  return 0;
-}
+#define LINE
+#include "allcommands.h"
+#undef LINE
 
 
 DEFINITION def[] = {
-  {CMD_INQUIRY, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+#define DEF
+#include "allcommands.h"
+#undef DEF
   {CMD_LAST, NULL, NULL, DIRECTION_NONE, NULL, NULL}
 };
 
@@ -113,7 +62,24 @@ main(int argc, char**argv)
   bool help = FALSE;
   bool raw = FALSE;
 
-  int cmdnum = 0;
+  int cmdnum = -1;
+
+  { // figure out which command this is and set cmdnum
+    char *cmdname;
+    DEFINITION *p;
+    cmdname = *(++argv); --argc;
+    for (p=def; p->cmd != CMD_LAST; p++) {
+      if (strcmp(cmdname, p->name) == 0) {
+        cmdnum = p-def;
+        break;
+      }
+    }
+  }
+  if (cmdnum < 0) {
+    fprintf(stderr, "unknown command: %s\n", *argv);
+    /*stub: usage(progname)*/
+    exit(-1);
+  }
 
   common_construct(&common);
 
@@ -154,14 +120,8 @@ main(int argc, char**argv)
       printf(" %.2x", (unsigned char)(common->stt.dat[i]));
     printf("\n");
   }
-  if (raw || !isatty(1)) {
+  if (1 || raw || !isatty(1)) {
     write(1, dat.dat, dat.len);
-  } else {
-    int i;
-    printf("inquiry data:");
-    for (i=0; i<dat.len; i++)
-      printf(" %.2x", (unsigned char)(dat.dat[i]));
-    printf("\n");
   }
 
   free(dat.dat);

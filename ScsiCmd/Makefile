@@ -18,13 +18,25 @@ CmdInquiry.c \
 # this line intentionally left blank
 
 PROGS = \
+scsi \
 scsi-inquiry \
+# this line intentionally left blank
+
+MAINS = \
+scsi.o \
+scsi-inquiry.o \
 # this line intentionally left blank
 
 all: $(LIB) $(PROGS)
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
+
+Cmd%.d:	Cmd%.c
+	$(Q)echo building dependencies for $<; set -e; $(CC) -MM $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) -DCOMMAND $< | sed 's@\(.*\)\.o[ :]*@$*.o $@ : @' > $@; [ -s $@ ] || rm -f $@
+
+Cmd%.o:	Cmd%.c
+	$(Q)echo compiling $<;                 set -e; $(CC)     $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) -DCOMMAND $< -o $@ -c
 
 %.d:	%.c
 	$(Q)echo building dependencies for $<; set -e; $(CC) -MM $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) $< | sed 's@\(.*\)\.o[ :]*@$*.o $@ : @' > $@; [ -s $@ ] || rm -f $@
@@ -68,6 +80,9 @@ TAGS:
 scsi-inquiry:	scsi-inquiry.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
 
-trial1:		trial1.o common.o send_cdb.o ../ScsiTransport/scsi.o
+scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
+
+allcommands.h:	Makefile
+		echo $(CSRCS) | tr " " "\012" | grep Cmd | while read i; do echo '#include "'$$i'"'; done > allcommands.h
 
