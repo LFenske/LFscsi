@@ -26,7 +26,7 @@ MAINS = \
 scsi.o \
 # this line intentionally left blank
 
-all: $(LIB) $(PROGS)
+all: allcommands.h $(LIB) $(PROGS)
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
