@@ -11,10 +11,11 @@ SCSITRANSPORT_H = $(SCSITRANSPORT)/ScsiTransport.h
 
 Q=@
 
-CSRCS =      \
-common.c     \
-send_cdb.c   \
-CmdInquiry.c \
+CSRCS =            \
+common.c           \
+send_cdb.c         \
+CmdInquiry.c       \
+CmdTestUnitReady.c \
 # this line intentionally left blank
 
 PROGS = \
