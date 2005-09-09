@@ -17,8 +17,8 @@ typedef enum {
 } CMD;
 
 
-typedef void (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
-                     int argc, char**argv);
+typedef int (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
+                    int argc, char**argv);
 
 
 typedef struct {
@@ -70,7 +70,7 @@ CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
 }
 
 
-void
+int
 LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
@@ -83,8 +83,8 @@ LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*usage(progname);*/
-    exit(-1);
+    /*stub: usage(progname);*/
+    return -1;
   }
 
   {
@@ -93,6 +93,7 @@ LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
                      (page == -1) ? 0 : page
                      );
   }
+  return 0;
 }
 
 
@@ -127,7 +128,7 @@ main(int argc, char**argv)
       case '?':
       default:
         {
-          /*usage(progname);*/
+          /*stub: usage(progname);*/
           exit(-1);
         }
         break;
@@ -141,7 +142,7 @@ main(int argc, char**argv)
 
   (*(def[cmdnum].line))(handle, common, argc, argv);
   if (def[cmdnum].dir == DIRECTION_IN) {
-    /*invoke def[cmdnum].printer */
+    /*stub: invoke def[cmdnum].printer */
   }
 
   (handle->close)(&handle);
