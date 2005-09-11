@@ -11,23 +11,27 @@ SCSITRANSPORT_H = $(SCSITRANSPORT)/ScsiTransport.h
 
 Q=@
 
-CSRCS =            \
-common.c           \
-send_cdb.c         \
-PrintInquirySub.c  \
-CmdInquiry.c       \
-CmdTestUnitReady.c \
-#CmdTemplate.c      \
+CSRCS =                 \
+common.c                \
+send_cdb.c              \
+PrintInquirySub.c       \
+PrintReadPositionSub.c  \
+CmdInquiry.c            \
+CmdReadPosition.c       \
+CmdTestUnitReady.c      \
+#CmdTemplate.c           \
 # this line intentionally left blank
 
-PROGS =      \
-scsi         \
-PrintInquiry \
+PROGS =           \
+scsi              \
+PrintInquiry      \
+PrintReadPosition \
 # this line intentionally left blank
 
-MAINS =        \
-scsi.o         \
-PrintInquiry.o \
+MAINS =             \
+scsi.o              \
+PrintInquiry.o      \
+PrintReadPosition.o \
 # this line intentionally left blank
 
 all: allcommands.h $(LIB) $(PROGS)
@@ -83,8 +87,11 @@ TAGS:
 scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
 
-PrintInquiry:	PrintInquiry.o $(LIB)
-		gcc -o $@ $^
+PrintInquiry:		PrintInquiry.o      $(LIB)
+			gcc -o $@ $^
+
+PrintReadPosition:	PrintReadPosition.o $(LIB)
+			gcc -o $@ $^
 
 allcommands.h:	Makefile
 		echo $(CSRCS) | tr " " "\012" | grep Cmd | while read i; do echo '#include "'$$i'"'; done > allcommands.h

@@ -1,3 +1,4 @@
 scsi
 PrintInquiry
+PrintReadPosition
 allcommands.h
