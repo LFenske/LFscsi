@@ -28,6 +28,149 @@ tabletype periphtypetable[] = {
   {-1, NULL}
 };
 
+tabletype pagecodetable[] = {
+   {0x00, "Supported Vital Product Data Page"},
+   {0x80, "Unit Serial Number Page"},
+   {0x81, "(obsolete) Implemented Operating Definition Page"},
+   {0x82, "(obsolete) ASCII Implemented Operating Definition Page"},
+   {0x83, "Device Identification Page"},
+   {0x84, "Software Interface Identification"},
+   {0x85, "Management Network Addresses Page"},
+   {0x86, "Extended INQUIRY Data Page"},
+   {0x87, "Mode Page Policy Page"},
+   {0x88, "SCSI Ports Page"},
+   {0xc0, "(Vendor-specific) Firmware Revision Page"},
+   {0xe0, "Implemented SCSI-2 Commands Page"},
+   {0xe1, "Implemented Vendor-Specific Commands Page"},
+   {0x01, "ASCII Information Page"},
+   {0x02, "ASCII Information Page"},
+   {0x03, "ASCII Information Page"},
+   {0x04, "ASCII Information Page"},
+   {0x05, "ASCII Information Page"},
+   {0x06, "ASCII Information Page"},
+   {0x07, "ASCII Information Page"},
+   {0x08, "ASCII Information Page"},
+   {0x09, "ASCII Information Page"},
+   {0x0a, "ASCII Information Page"},
+   {0x0b, "ASCII Information Page"},
+   {0x0c, "ASCII Information Page"},
+   {0x0d, "ASCII Information Page"},
+   {0x0e, "ASCII Information Page"},
+   {0x0f, "ASCII Information Page"},
+   {0x10, "ASCII Information Page"},
+   {0x11, "ASCII Information Page"},
+   {0x12, "ASCII Information Page"},
+   {0x13, "ASCII Information Page"},
+   {0x14, "ASCII Information Page"},
+   {0x15, "ASCII Information Page"},
+   {0x16, "ASCII Information Page"},
+   {0x17, "ASCII Information Page"},
+   {0x18, "ASCII Information Page"},
+   {0x19, "ASCII Information Page"},
+   {0x1a, "ASCII Information Page"},
+   {0x1b, "ASCII Information Page"},
+   {0x1c, "ASCII Information Page"},
+   {0x1d, "ASCII Information Page"},
+   {0x1e, "ASCII Information Page"},
+   {0x1f, "ASCII Information Page"},
+   {0x20, "ASCII Information Page"},
+   {0x21, "ASCII Information Page"},
+   {0x22, "ASCII Information Page"},
+   {0x23, "ASCII Information Page"},
+   {0x24, "ASCII Information Page"},
+   {0x25, "ASCII Information Page"},
+   {0x26, "ASCII Information Page"},
+   {0x27, "ASCII Information Page"},
+   {0x28, "ASCII Information Page"},
+   {0x29, "ASCII Information Page"},
+   {0x2a, "ASCII Information Page"},
+   {0x2b, "ASCII Information Page"},
+   {0x2c, "ASCII Information Page"},
+   {0x2d, "ASCII Information Page"},
+   {0x2e, "ASCII Information Page"},
+   {0x2f, "ASCII Information Page"},
+   {0x30, "ASCII Information Page"},
+   {0x31, "ASCII Information Page"},
+   {0x32, "ASCII Information Page"},
+   {0x33, "ASCII Information Page"},
+   {0x34, "ASCII Information Page"},
+   {0x35, "ASCII Information Page"},
+   {0x36, "ASCII Information Page"},
+   {0x37, "ASCII Information Page"},
+   {0x38, "ASCII Information Page"},
+   {0x39, "ASCII Information Page"},
+   {0x3a, "ASCII Information Page"},
+   {0x3b, "ASCII Information Page"},
+   {0x3c, "ASCII Information Page"},
+   {0x3d, "ASCII Information Page"},
+   {0x3e, "ASCII Information Page"},
+   {0x3f, "ASCII Information Page"},
+   {0x40, "ASCII Information Page"},
+   {0x41, "ASCII Information Page"},
+   {0x42, "ASCII Information Page"},
+   {0x43, "ASCII Information Page"},
+   {0x44, "ASCII Information Page"},
+   {0x45, "ASCII Information Page"},
+   {0x46, "ASCII Information Page"},
+   {0x47, "ASCII Information Page"},
+   {0x48, "ASCII Information Page"},
+   {0x49, "ASCII Information Page"},
+   {0x4a, "ASCII Information Page"},
+   {0x4b, "ASCII Information Page"},
+   {0x4c, "ASCII Information Page"},
+   {0x4d, "ASCII Information Page"},
+   {0x4e, "ASCII Information Page"},
+   {0x4f, "ASCII Information Page"},
+   {0x50, "ASCII Information Page"},
+   {0x51, "ASCII Information Page"},
+   {0x52, "ASCII Information Page"},
+   {0x53, "ASCII Information Page"},
+   {0x54, "ASCII Information Page"},
+   {0x55, "ASCII Information Page"},
+   {0x56, "ASCII Information Page"},
+   {0x57, "ASCII Information Page"},
+   {0x58, "ASCII Information Page"},
+   {0x59, "ASCII Information Page"},
+   {0x5a, "ASCII Information Page"},
+   {0x5b, "ASCII Information Page"},
+   {0x5c, "ASCII Information Page"},
+   {0x5d, "ASCII Information Page"},
+   {0x5e, "ASCII Information Page"},
+   {0x5f, "ASCII Information Page"},
+   {0x60, "ASCII Information Page"},
+   {0x61, "ASCII Information Page"},
+   {0x62, "ASCII Information Page"},
+   {0x63, "ASCII Information Page"},
+   {0x64, "ASCII Information Page"},
+   {0x65, "ASCII Information Page"},
+   {0x66, "ASCII Information Page"},
+   {0x67, "ASCII Information Page"},
+   {0x68, "ASCII Information Page"},
+   {0x69, "ASCII Information Page"},
+   {0x6a, "ASCII Information Page"},
+   {0x6b, "ASCII Information Page"},
+   {0x6c, "ASCII Information Page"},
+   {0x6d, "ASCII Information Page"},
+   {0x6e, "ASCII Information Page"},
+   {0x6f, "ASCII Information Page"},
+   {0x70, "ASCII Information Page"},
+   {0x71, "ASCII Information Page"},
+   {0x72, "ASCII Information Page"},
+   {0x73, "ASCII Information Page"},
+   {0x74, "ASCII Information Page"},
+   {0x75, "ASCII Information Page"},
+   {0x76, "ASCII Information Page"},
+   {0x77, "ASCII Information Page"},
+   {0x78, "ASCII Information Page"},
+   {0x79, "ASCII Information Page"},
+   {0x7a, "ASCII Information Page"},
+   {0x7b, "ASCII Information Page"},
+   {0x7c, "ASCII Information Page"},
+   {0x7d, "ASCII Information Page"},
+   {0x7e, "ASCII Information Page"},
+   {0x7f, "ASCII Information Page"},
+};
+
 tabletype cmdtable[] = {
   {0x00, "Test Unit Ready"},
   {0x01, "Rezero Unit//Rewind"},
@@ -181,17 +324,19 @@ PrintInquirySub(VECTOR dat)
     unsigned char page = rmb;
     unsigned char pagelen  = format;
     unsigned char *q;
-    printf("Inquiry page 0x%.2x: ", page);
+    printf("Inquiry page 0x%.2x: %s\n", page, lookup(pagecodetable, page));
     q = malloc(pagelen);
     if (pagelen != myread(q, pagelen)) {
       free(q);
       return;
     }
 
+    printf("  Peripheral Device Type: %s", lookup(periphtypetable, periphtype&0x1f));
+    printf(", Peripheral Qualifier: %d\n", periphtype>>5);
+
     if (0x01 <= page && page <= 0x7f) {
       int asciilen;
       unsigned char *qp = q;
-      printf("ASCII Information Page 0x%.2x\n", page);
       asciilen = qp[0]; qp++;
       printf("  ASCII information:\n");
       printf("    %.*s\n", asciilen, qp);
@@ -202,7 +347,6 @@ PrintInquirySub(VECTOR dat)
       switch (page) {
       case 0x00:
         {
-          printf("Supported Vital Product Data Page\n");
           for (i=0; i<pagelen; i++) {
             printf("  Supported VPD Page: 0x%.2x\n", q[i]);
           }
@@ -210,7 +354,6 @@ PrintInquirySub(VECTOR dat)
         break;
       case 0x80:
         {
-          printf("VPD Unit Serial Number Page\n");
           printf("  Product Serial Number: %.*s\n", pagelen, q);
         }
         break;
@@ -218,7 +361,6 @@ PrintInquirySub(VECTOR dat)
         {
           unsigned char curopdef, defopdef;
           int i;
-          printf("Implemented Operating Definition Page\n");
           curopdef = q[0];
           defopdef = q[1];
           printf("  Current Operating Definition: %d\n", curopdef);
@@ -233,7 +375,6 @@ PrintInquirySub(VECTOR dat)
         {
           int asciilen;
           unsigned char *qp = q;
-          printf("ASCII Implemented Operating Definition Page\n");
           asciilen = qp[0]; qp++;
           printf("  ASCII operating definition description data:\n");
           printf("    %.*s\n", asciilen, qp);
@@ -245,7 +386,6 @@ PrintInquirySub(VECTOR dat)
       case 0xc0:
         {
           unsigned char *qp = q;
-          printf("(Vendor-specific) Firmware Revision Page\n");
           printf("  Revision:    %.22s\n", qp); qp += 22;
           printf("  Build Date:  %.19s\n", qp); qp += 19;
           printf("  Checksum:    %.14s\n", qp); qp += 14;
@@ -262,7 +402,6 @@ PrintInquirySub(VECTOR dat)
       case 0xe0:
         {
           int i;
-          printf("Implemented SCSI-2 Commands Page\n");
           for (i=0; i<pagelen; i++) {
             unsigned char cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
@@ -272,7 +411,6 @@ PrintInquirySub(VECTOR dat)
         break;
       case 0xe1:
         {
-          printf("Implemented Vendor-Specific Commands Page\n");
           for (i=0; i<pagelen; i++) {
             unsigned char cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
@@ -282,7 +420,7 @@ PrintInquirySub(VECTOR dat)
         break;
       default:
         {
-          printf("This is a page not supported by this program: 0x%.2x\n", page);
+          printf("This is a page not supported by this program\n");
 	}
         break;
       } /* switch page */
