@@ -6,13 +6,14 @@
 
 
 #ifdef DEF
-  {CMD_Inquiry, "inquiry", LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
-  {CMD_Inquiry, "inq"    , LineInquiry, DIRECTION_IN , "PrintInquiry", "[-z size] [-r] [page code]", "page code"},
+  {CMD_Inquiry, "inquiry", LineInquiry, DIRECTION_IN , PrintInquirySub, "[-z size] [-r] [page code]", "page code"},
+  {CMD_Inquiry, "inq"    , LineInquiry, DIRECTION_IN , PrintInquirySub, "[-z size] [-r] [page code]", "page code"},
 #endif
 
 
 #ifdef LINE
 #include "CmdInquiry.h"
+#include "PrintInquirySub.h"
 
 int
 LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,

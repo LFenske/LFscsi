@@ -6,7 +6,7 @@
 
 
 #ifdef DEF
-  {CMD_Template, "template", LineTemplate, DIRECTION_TEMPLATE, "PrintTemplate", "", ""},
+  {CMD_Template, "template", LineTemplate, DIRECTION_TEMPLATE, PrintTemplateSub, "", ""},
 #endif
 
 

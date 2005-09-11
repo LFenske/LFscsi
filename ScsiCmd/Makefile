@@ -14,17 +14,20 @@ Q=@
 CSRCS =            \
 common.c           \
 send_cdb.c         \
+PrintInquirySub.c  \
 CmdInquiry.c       \
 CmdTestUnitReady.c \
 #CmdTemplate.c      \
 # this line intentionally left blank
 
-PROGS = \
-scsi \
+PROGS =      \
+scsi         \
+PrintInquiry \
 # this line intentionally left blank
 
-MAINS = \
-scsi.o \
+MAINS =        \
+scsi.o         \
+PrintInquiry.o \
 # this line intentionally left blank
 
 all: allcommands.h $(LIB) $(PROGS)
@@ -78,6 +81,9 @@ TAGS:
 		cd ../ScsiTransport; $(MAKE)
 
 scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
+		gcc -o $@ $^
+
+PrintInquiry:	PrintInquiry.o $(LIB)
 		gcc -o $@ $^
 
 allcommands.h:	Makefile

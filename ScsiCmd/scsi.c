@@ -18,13 +18,15 @@ typedef enum {
 typedef int (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
                     int argc, char**argv);
 
+typedef void (*PRINTSUB)(VECTOR dat);
+
 
 typedef struct {
   CMD cmd;
   char *name;
   LINE line;
   DIRECTION dir;
-  char *printer;
+  PRINTSUB printer;
   char *short_help, *long_help;
 } DEFINITION;
 
@@ -107,11 +109,16 @@ main(int argc, char**argv)
   scsi_open(&handle, device);
 
   (*(def[cmdnum].line))(handle, common, argc, argv);
-  if (def[cmdnum].dir == DIRECTION_IN) {
-    /*stub: invoke def[cmdnum].printer */
-  }
 
   (handle->close)(&handle);
+
+  if (def[cmdnum].dir == DIRECTION_IN) {
+    if (!raw && isatty(1) && def[cmdnum].printer != NULL) {
+      (*(def[cmdnum].printer))(dat);
+    } else {
+      write(1, dat.dat, dat.len);
+    }
+  }
 
   if (common->stt.len > 0) {
     int i;
@@ -119,9 +126,6 @@ main(int argc, char**argv)
     for (i=0; i<common->stt.len; i++)
       printf(" %.2x", (unsigned char)(common->stt.dat[i]));
     printf("\n");
-  }
-  if (1 || raw || !isatty(1)) {
-    write(1, dat.dat, dat.len);
   }
 
   free(dat.dat);
