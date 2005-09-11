@@ -17,6 +17,7 @@ send_cdb.c              \
 PrintInquirySub.c       \
 PrintReadPositionSub.c  \
 CmdInquiry.c            \
+CmdLocate.c             \
 CmdReadPosition.c       \
 CmdTestUnitReady.c      \
 #CmdTemplate.c           \
