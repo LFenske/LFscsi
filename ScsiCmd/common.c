@@ -8,8 +8,9 @@ void
 common_construct(COMMON_PARAMS *pCommon)
 {
   *pCommon = malloc(sizeof(**pCommon));
-  (*pCommon)->size = NOSIZE;
+  (*pCommon)->size    = NOSIZE;
   (*pCommon)->timeout = -1.;
+  (*pCommon)->immed   = FALSE;
   (*pCommon)->stt.len = 18;
   (*pCommon)->stt.dat = malloc((*pCommon)->stt.len);
 }
