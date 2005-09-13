@@ -20,6 +20,8 @@ CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
 CmdReadPosition.c       \
+CmdRewind.c             \
+CmdSpace.c              \
 CmdTestUnitReady.c      \
 #CmdTemplate.c           \
 # this line intentionally left blank
