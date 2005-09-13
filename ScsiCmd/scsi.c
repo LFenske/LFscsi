@@ -57,7 +57,7 @@ DEFINITION def[] = {
 int
 main(int argc, char**argv)
 {
-  char *progname = argv[0];
+  /*char *progname = argv[0];*/
   char *device = getenv("SCSI_DEVICE");
   SCSI_HANDLE handle;
   COMMON_PARAMS common;
