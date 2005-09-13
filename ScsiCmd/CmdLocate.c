@@ -50,7 +50,7 @@ LineLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 VECTOR
 CmdLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
-          int objid)   /* timeout */
+          int objid)   /* immed, timeout */
 {
   byte cdb[10];
   VECTOR cdbvec;

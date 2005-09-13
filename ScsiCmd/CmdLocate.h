@@ -7,7 +7,7 @@
 
 VECTOR
 CmdLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
-          int objid);   /* timeout */
+          int objid);   /* immed, timeout */
 
 
 #endif /* __CmdLocate_h */
