@@ -23,6 +23,7 @@ CmdReadPosition.c       \
 CmdRewind.c             \
 CmdSpace.c              \
 CmdTestUnitReady.c      \
+CmdWriteFilemarks.c     \
 #CmdTemplate.c           \
 # this line intentionally left blank
 
