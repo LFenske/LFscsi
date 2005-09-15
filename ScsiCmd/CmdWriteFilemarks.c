@@ -6,8 +6,8 @@
 
 
 #ifdef DEF
-  {CMD_WriteFilemarks, "write_filemarks", LineWriteFilemarks, DIRECTION_NONE, NULL, "", ""},
-  {CMD_WriteFilemarks, "wf"             , LineWriteFilemarks, DIRECTION_NONE, NULL, "", ""},
+  {CMD_WriteFilemarks, "write_filemarks", LineWriteFilemarks, DIRECTION_NONE, NULL, "[number of marks]", ""},
+  {CMD_WriteFilemarks, "wf"             , LineWriteFilemarks, DIRECTION_NONE, NULL, "[number of marks]", ""},
 #endif
 
 

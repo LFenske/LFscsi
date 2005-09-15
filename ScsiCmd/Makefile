@@ -14,11 +14,13 @@ Q=@
 CSRCS =                 \
 common.c                \
 send_cdb.c              \
+PrintDefaultSub.c       \
 PrintInquirySub.c       \
 PrintReadPositionSub.c  \
 CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
+CmdRead6.c              \
 CmdReadPosition.c       \
 CmdRewind.c             \
 CmdSpace.c              \
@@ -29,12 +31,14 @@ CmdWriteFilemarks.c     \
 
 PROGS =           \
 scsi              \
+PrintDefault      \
 PrintInquiry      \
 PrintReadPosition \
 # this line intentionally left blank
 
 MAINS =             \
 scsi.o              \
+PrintDefault.o      \
 PrintInquiry.o      \
 PrintReadPosition.o \
 # this line intentionally left blank
@@ -91,6 +95,9 @@ TAGS:
 
 scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
 		gcc -o $@ $^
+
+PrintDefault:		PrintDefault.o      $(LIB)
+			gcc -o $@ $^
 
 PrintInquiry:		PrintInquiry.o      $(LIB)
 			gcc -o $@ $^
