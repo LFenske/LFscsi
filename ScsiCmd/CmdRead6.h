@@ -7,7 +7,7 @@
 
 VECTOR
 CmdRead6(SCSI_HANDLE handle, COMMON_PARAMS common,
-         int sili_fixed, int length);   /* timeout */
+         int sili_fixed, int length);   /* size, timeout */
 
 
 #endif /* __CmdRead6_h */
