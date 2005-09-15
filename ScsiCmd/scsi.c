@@ -119,6 +119,7 @@ main(int argc, char**argv)
     } else {
       write(1, dat.dat, dat.len);
     }
+    free(dat.dat);
   }
 
   if (common->stt.len > 0) {
@@ -129,7 +130,6 @@ main(int argc, char**argv)
     printf("\n");
   }
 
-  free(dat.dat);
   common_destruct(&common);
   return 0;
 }
