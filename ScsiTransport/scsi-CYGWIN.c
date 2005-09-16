@@ -222,10 +222,11 @@ scsi_cdb(
               unTarget = sptdwb.sptd.TargetId;
               unLun = sptdwb.sptd.Lun;
           }  */
+          *stt_lenp = 0;
 
       } else {
-          UINT        jj = 0;
-          for(jj=0; jj< (unsigned int)stt_lenp; jj++)
+          int        jj = 0;
+          for(jj=0; jj< *stt_lenp; jj++)
               stt[jj] = sptdwb.ucSenseBuf[jj];
           //return  sptdwb.sptd.ScsiStatus;
       }
