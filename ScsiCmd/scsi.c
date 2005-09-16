@@ -1,5 +1,6 @@
 #include "ScsiTransport.h"
 #include "common.h"
+#include "PrintDefaultSub.h"
 
 #include <unistd.h>   /* for getopt, isatty */
 #include <stdlib.h>   /* for malloc, strtol, exit */
@@ -114,8 +115,12 @@ main(int argc, char**argv)
   (handle->close)(&handle);
 
   if (def[cmdnum].dir == DIRECTION_IN) {
-    if (!raw && isatty(1) && def[cmdnum].printer != NULL) {
-      (*(def[cmdnum].printer))(dat);
+    if (!raw && isatty(1)) {
+      if (def[cmdnum].printer != NULL) {
+        (*(def[cmdnum].printer))(dat);
+      } else {
+        PrintDefaultSub(dat);
+      }
     } else {
       write(1, dat.dat, dat.len);
     }
