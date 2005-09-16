@@ -153,8 +153,13 @@ scsi_reset(SCSI_HANDLE device, RESET_LEVEL level)
   switch (level) {
   case RESET_DEVICE: sg_scsi_reset = SG_SCSI_RESET_DEVICE; break;
   case RESET_BUS   : sg_scsi_reset = SG_SCSI_RESET_BUS   ; break;
+  default: fprintf(stderr, "scsi_reset: unknown level = %d\n", level); return -1; break;
   }
-  return ioctl(fd, SG_SCSI_RESET, &sg_scsi_reset);
+  if (ioctl(fd, SG_SCSI_RESET, &sg_scsi_reset) < 0) {
+     perror("scsi_reset");
+     return -1;
+  }
+  return 0;
 }
 
 
