@@ -146,6 +146,7 @@ static int
 scsi_reset(SCSI_HANDLE device, RESET_LEVEL level)
 {
   int fd = GET_FD(device);
+  int retval = 0;
   if (fd < 0) {
      if (debug) {
         fprintf(stderr, "aborting because fd = %d\n", fd);
@@ -153,8 +154,13 @@ scsi_reset(SCSI_HANDLE device, RESET_LEVEL level)
      return -1;
   }
   switch (level) {
-  case RESET_DEVICE: /*stub*/ break;
-  case RESET_BUS   : /*stub*/ break;
+  case RESET_DEVICE: retval = ioctl(fd, SCIOCRESET  , NULL); break;
+  case RESET_BUS   : retval = ioctl(fd, SCBUSIORESET, NULL); break;
+  default: fprintf(stderr, "scsi_reset: unknown level = %d\n", level); return -1; break;
+  }
+  if (retval < 0) {
+     perror("scsi_reset");
+     return -1;
   }
   return 0;
 }
