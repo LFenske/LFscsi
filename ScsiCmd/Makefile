@@ -22,6 +22,7 @@ CmdLoadUnload.c         \
 CmdLocate.c             \
 CmdRead6.c              \
 CmdReadPosition.c       \
+CmdReset.c              \
 CmdRewind.c             \
 CmdSpace.c              \
 CmdTestUnitReady.c      \
