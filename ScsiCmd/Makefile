@@ -20,6 +20,7 @@ PrintReadPositionSub.c  \
 CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
+CmdPreventAllow.c       \
 CmdRead6.c              \
 CmdReadPosition.c       \
 CmdReset.c              \
