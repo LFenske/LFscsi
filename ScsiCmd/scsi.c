@@ -1,6 +1,7 @@
 #include "ScsiTransport.h"
 #include "common.h"
 #include "PrintDefaultSub.h"
+#include "PrintRequestSenseSub.h"
 
 #include <unistd.h>   /* for getopt, isatty */
 #include <stdlib.h>   /* for malloc, strtol, exit */
@@ -128,11 +129,15 @@ main(int argc, char**argv)
   }
 
   if (common->stt.len > 0) {
+#if 0
     int i;
     printf("sense:");
     for (i=0; i<common->stt.len; i++)
       printf(" %.2x", (unsigned char)(common->stt.dat[i]));
     printf("\n");
+#else
+    PrintRequestSenseSub(common->stt);
+#endif
   }
 
   common_destruct(&common);

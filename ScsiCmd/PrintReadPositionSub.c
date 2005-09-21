@@ -25,7 +25,7 @@ PrintReadPositionSub(VECTOR dat)
 {
   unsigned char *d = dat.dat;
   int flags      = d[ 0];
-  int partnum    = d[ 1];
+  /*int partnum    = d[ 1]; */
   int blockfirst = (d[ 4] << 24) | (d[ 5] << 16) | (d[ 6] <<  8) | (d[ 7] << 0);
   int blocklast  = (d[ 8] << 24) | (d[ 9] << 16) | (d[10] <<  8) | (d[11] << 0);
   int numblocks  = (d[12] << 24) | (d[13] << 16) | (d[14] <<  8) | (d[15] << 0);

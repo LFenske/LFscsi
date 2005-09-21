@@ -17,12 +17,14 @@ send_cdb.c              \
 PrintDefaultSub.c       \
 PrintInquirySub.c       \
 PrintReadPositionSub.c  \
+PrintRequestSenseSub.c  \
 CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
 CmdPreventAllow.c       \
 CmdRead6.c              \
 CmdReadPosition.c       \
+CmdRequestSense.c       \
 CmdReset.c              \
 CmdRewind.c             \
 CmdSpace.c              \
@@ -37,6 +39,7 @@ scsi              \
 PrintDefault      \
 PrintInquiry      \
 PrintReadPosition \
+PrintRequestSense \
 # this line intentionally left blank
 
 MAINS =             \
@@ -44,6 +47,7 @@ scsi.o              \
 PrintDefault.o      \
 PrintInquiry.o      \
 PrintReadPosition.o \
+PrintRequestSense.o \
 # this line intentionally left blank
 
 all: allcommands.h $(LIB) $(PROGS)
@@ -106,6 +110,9 @@ PrintInquiry:		PrintInquiry.o      $(LIB)
 			gcc -o $@ $^
 
 PrintReadPosition:	PrintReadPosition.o $(LIB)
+			gcc -o $@ $^
+
+PrintRequestSense:	PrintRequestSense.o $(LIB)
 			gcc -o $@ $^
 
 allcommands.h:	Makefile
