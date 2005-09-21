@@ -6,11 +6,6 @@
 #include <string.h>   /* for memcpy */
 
 
-typedef struct {
-  unsigned char  key;
-  char *data;
-} tabletype;
-
 tabletype periphtypetable[] = {
   {0x00, "Direct Access"},
   {0x01, "Sequential Access"},
@@ -258,14 +253,13 @@ tabletype cmdtable[] = {
 
 
 char *
-lookup(tabletype *table, unsigned char value)
+lookup_unknown(tabletype *table, int value)
 {
-  while (table->key != value && table->data != NULL)
-    table++;
-  if (table->data == NULL)
+  char *retval = lookup(table, value);
+  if (retval == NULL)
     return "unknown";
   else
-    return table->data;
+    return retval;
 }
 
 
@@ -324,14 +318,14 @@ PrintInquirySub(VECTOR dat)
     unsigned char page = rmb;
     unsigned char pagelen  = format;
     unsigned char *q;
-    printf("Inquiry page 0x%.2x: %s\n", page, lookup(pagecodetable, page));
+    printf("Inquiry page 0x%.2x: %s\n", page, lookup_unknown(pagecodetable, page));
     q = malloc(pagelen);
     if (pagelen != myread(q, pagelen)) {
       free(q);
       return;
     }
 
-    printf("  Peripheral Device Type: %s", lookup(periphtypetable, periphtype&0x1f));
+    printf("  Peripheral Device Type: %s", lookup_unknown(periphtypetable, periphtype&0x1f));
     printf(", Peripheral Qualifier: %d\n", periphtype>>5);
 
     if (0x01 <= page && page <= 0x7f) {
@@ -405,7 +399,7 @@ PrintInquirySub(VECTOR dat)
           for (i=0; i<pagelen; i++) {
             unsigned char cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
-                   lookup(cmdtable, cmd));
+                   lookup_unknown(cmdtable, cmd));
           }
         }
         break;
@@ -414,7 +408,7 @@ PrintInquirySub(VECTOR dat)
           for (i=0; i<pagelen; i++) {
             unsigned char cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
-                   lookup(cmdtable, cmd));
+                   lookup_unknown(cmdtable, cmd));
           }
         }
         break;
@@ -431,7 +425,7 @@ PrintInquirySub(VECTOR dat)
     unsigned char len, bits;
     char *q;
     printf("Inquiry\n");
-    printf("  Peripheral Device Type: %s", lookup(periphtypetable, periphtype&0x1f));
+    printf("  Peripheral Device Type: %s", lookup_unknown(periphtypetable, periphtype&0x1f));
     printf(", Peripheral Qualifier: %d\n", periphtype>>5);
     printf("  %sRemovable Media\n", (rmb & 0x80) ? "" : "Non-");
     printf("  Device-type modifier: %d\n", rmb & 0x7f);

@@ -19,11 +19,16 @@ typedef struct {
   VECTOR stt;
 } *COMMON_PARAMS;
 
+typedef struct {
+  int key;
+  char *data;
+} tabletype;
+
 #include "send_cdb.h"
 
 
 void common_construct(COMMON_PARAMS *pCommon);
 void  common_destruct(COMMON_PARAMS *pCommon);
-
+char *lookup(tabletype *table, int value);
 
 #endif /* __common_h */

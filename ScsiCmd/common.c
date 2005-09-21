@@ -24,3 +24,17 @@ common_destruct(COMMON_PARAMS *pCommon)
 }
 
 
+char *
+lookup(tabletype *table, int value)
+{
+  while (table->key != value && table->data != NULL)
+    table++;
+#if 0
+  if (table->data == NULL)
+    return "unknown";
+  else
+#endif
+    return table->data;
+}
+
+
