@@ -21,6 +21,7 @@ PrintRequestSenseSub.c  \
 CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
+CmdModeSelect.c         \
 CmdPreventAllow.c       \
 CmdRead6.c              \
 CmdReadPosition.c       \
