@@ -66,7 +66,7 @@ CmdWriteFilemarks(SCSI_HANDLE handle, COMMON_PARAMS common,
   cdb[1] = common->immed ? 1 : 0;
   cdb[2] = 0;
   cdb[3] = 0;
-  cdb[4] = 0;
+  cdb[4] = count;
   cdb[5] = 0;
   send_cdb(handle, common,
 	   DIRECTION_NONE,
