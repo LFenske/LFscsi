@@ -6,8 +6,8 @@ CMD_ModeSense,
 
 
 #ifdef DEF
-{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
-{CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
+{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
+{CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
 #endif
 
 
@@ -95,7 +95,7 @@ CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
   VECTOR retval;
   int thissize = (common->size != NOSIZE) ? common->size : (cdb_size == 6) ? 0xff : 0x1000;
 
-  int DBD   = 1;
+  int DBD   = 0;
   int LLBAA = 0;
 
   cdbvec.dat = cdb;
@@ -143,7 +143,7 @@ CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
 	   DIRECTION_IN,
 	   cdbvec,
 	   retval,
-	   1.);
+	   5.);
   return retval;
 }
 #endif

@@ -7,6 +7,9 @@
 #include <ctype.h>    /* for isprint */
 
 
+#define MIN(__a, __b)  ((__a) < (__b) ? (__a) : (__b))
+
+
 static VECTOR myread_data;
 
 
@@ -52,26 +55,37 @@ ED(int bit)
 
 
 void
-PrintModeSenseSub(VECTOR dat)
+PrintModeSenseSub(VECTOR dat, bool bighead)
 {
   unsigned char $density, $type;
   char *$ps;
+  int $spf;
   char qc[16];
-  unsigned char $totlen, $medtype, $WPcache, $BDL;
+  int $totlen;
+  unsigned char $medtype, $WPcache, $BDL;
 
   if (dat.dat == NULL)
     return;
 
   myread_init(dat);
 
-  if (4 != myread(qc, 4))
-    return;
-
-  $totlen  = qc[0];
-  $medtype = qc[1];
-  $WPcache = qc[2];
-  $BDL     = qc[3];
-  $totlen -= 3;
+  if (bighead) {
+     if (8 != myread(qc, 8))
+        return;
+     $totlen  = (qc[0] << 8) | (qc[1] << 0);
+     $medtype = qc[2];
+     $WPcache = qc[3];
+     $BDL     = (qc[6] << 8) | (qc[7] << 0);
+     $totlen -= 6;
+  } else {
+     if (4 != myread(qc, 4))
+        return;
+     $totlen  = qc[0];
+     $medtype = qc[1];
+     $WPcache = qc[2];
+     $BDL     = qc[3];
+     $totlen -= 3;
+  }
   if ($BDL) {
     int $numblocks, $blocklen;
     unsigned char *$q;
@@ -80,11 +94,10 @@ PrintModeSenseSub(VECTOR dat)
       free($q);
       return;
     }
-    $numblocks = ($q[0] << 24) | ($q[1] << 16) | ($q[2] <<  8) | ($q[3] <<  0);
-    $blocklen  = ($q[4] << 24) | ($q[5] << 16) | ($q[6] <<  8) | ($q[7] <<  0);
+    $density   =  $q[0];
+    $numblocks = ($q[1] << 16) | ($q[2] <<  8) | ($q[3] <<  0);
+    $blocklen  = ($q[5] << 16) | ($q[6] <<  8) | ($q[7] <<  0);
     $totlen -= $BDL;
-    $density = $numblocks >> 24;
-    $numblocks &= 0xffffff;
     printf("Block Descriptor\n");
     if ($density) {
       printf("  Density: %s",
@@ -100,21 +113,31 @@ PrintModeSenseSub(VECTOR dat)
   while ($totlen) {
     unsigned char $q[2];
     unsigned char *$page;
+    unsigned char subpage = -1;
     unsigned char $rawtype, $len;
 
     if (2 != myread($q, 2))
       return;
 
     $rawtype = $q[0];
-    $len     = $q[1];
+    $ps = $rawtype >> 7 ? "savable" : "not savable";	/* top bit */
+    $spf = ($rawtype >> 6) & 1;
+    $type = $rawtype & 0x3f;	/* bottom six bits */
+    if ($spf) {
+      subpage = $q[1];
+      if (2 != myread($q, 2))
+        return;
+      $len    = ($q[0] << 8) | ($q[1] << 0);
+      $totlen -= $len+4;
+    } else {
+      $len     = $q[1];
+      $totlen -= $len+2;
+    }
     $page = malloc($len);
     if ($len != myread($page, $len)) {
       free($page);
       return;
     }
-    $totlen -= $len+2;
-    $ps = $rawtype >> 7 ? "savable" : "not savable";	/* top bit */
-    $type = $rawtype & 0x3f;	/* bottom six bits */
 
     switch ($type) {
     case 0x1d:
@@ -173,6 +196,30 @@ PrintModeSenseSub(VECTOR dat)
         printf("  exch IE with%s\n", caps($exIE));
         printf("  exch DT with%s\n", caps($exDT));
       }
+    case 0x30:
+      {
+        printf("page 0x30: Additional Delay (%s)\n", $ps);
+
+        if ($spf) {
+          unsigned char fulldata[12];
+          int delay    ;
+          int countnext;
+          int period   ;
+          int countleft;
+          unsigned char *pp = fulldata;
+          memset(fulldata, 0, sizeof(fulldata));
+          memcpy(fulldata, $page, MIN(sizeof(fulldata), $len));
+          delay     = (pp[0] << 16) | (pp[1] << 8) | (pp[2] << 0); pp+=3;
+          countnext = (pp[0] << 16) | (pp[1] << 8) | (pp[2] << 0); pp+=3;
+          period    = (pp[0] << 16) | (pp[1] << 8) | (pp[2] << 0); pp+=3;
+          countleft = (pp[0] << 16) | (pp[1] << 8) | (pp[2] << 0); pp+=3;
+          printf("subpage %.2x %7d %7d %7d %7d\n", subpage, delay, countnext, period, countleft);
+        } else {
+          printf("illegal SPF == 0\n");
+          break;
+        }
+      }
+      break;
     default:
       {
         int $bytenum;
@@ -197,6 +244,20 @@ PrintModeSenseSub(VECTOR dat)
     }
     printf("\n");
   }
+}
+
+
+void
+PrintModeSenseSub6 (VECTOR dat)
+{
+   PrintModeSenseSub(dat, FALSE);
+}
+
+
+void
+PrintModeSenseSub10(VECTOR dat)
+{
+   PrintModeSenseSub(dat, TRUE);
 }
 
 
