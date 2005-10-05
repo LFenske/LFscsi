@@ -270,17 +270,17 @@ biti(unsigned char flags, int bitnum)
 }
 
 
-VECTOR myread_data;
+static VECTOR myread_data;
 
 
-void
+static void
 myread_init(VECTOR dat)
 {
   myread_data = dat;
 }
 
 
-int
+static int
 myread(unsigned char *pC, int len)
 {
   int retval;

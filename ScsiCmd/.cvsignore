@@ -2,5 +2,6 @@ scsi
 allcommands.h
 PrintDefault
 PrintInquiry
+PrintModeSense
 PrintReadPosition
 PrintRequestSense

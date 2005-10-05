@@ -41,9 +41,9 @@ PROGS =           \
 scsi              \
 PrintDefault      \
 PrintInquiry      \
+PrintModeSense    \
 PrintReadPosition \
 PrintRequestSense \
-#PrintModeSense    \
 # this line intentionally left blank
 
 MAINS =             \
@@ -111,6 +111,9 @@ PrintDefault:		PrintDefault.o      $(LIB)
 			gcc -o $@ $^
 
 PrintInquiry:		PrintInquiry.o      $(LIB)
+			gcc -o $@ $^
+
+PrintModeSense:		PrintModeSense.o    $(LIB)
 			gcc -o $@ $^
 
 PrintReadPosition:	PrintReadPosition.o $(LIB)
