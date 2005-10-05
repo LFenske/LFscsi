@@ -110,7 +110,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     printf("  %7d bytes each\n", $blocklen);
     free($q);
   }
-  while ($totlen) {
+  while ($totlen >= 0) {
     unsigned char $q[2];
     unsigned char *$page;
     unsigned char subpage = -1;
