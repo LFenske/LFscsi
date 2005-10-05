@@ -1,6 +1,7 @@
 #define __send_cdb_c
 
 #include "send_cdb.h"
+#include <stdio.h>   /* for printf */
 
 
 void
