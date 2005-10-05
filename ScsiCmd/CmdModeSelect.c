@@ -19,7 +19,25 @@ int
 LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
                int argc, char**argv)
 {
+  int cdb_size     = 6;
   bool page_format = TRUE;
+
+  int ch;
+  /*optreset = 1;*/
+  optind = 0;
+  while ((ch = getopt(argc, argv, "c:")) != -1) {
+    switch (ch) {
+    case 'c':
+      cdb_size     = strtol(optarg, (char**)NULL, 0);
+      break;
+    case '?':
+    default:
+      /*stub: usage(progname);*/
+      break;
+    }
+  }
+  argc -= optind;
+  argv += optind;
 
   if (argc < 1) {
     /*stub: usage(progname);*/
@@ -54,7 +72,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
     }
 
     CmdModeSelect(handle, common,
-                  dat, page_format);
+                  cdb_size, dat, page_format);
   }
   return 0;
 }
@@ -93,7 +111,7 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
     dat.dat[4+7] = blocksize >>  0;
 
     CmdModeSelect(handle, common,
-                  dat, TRUE);
+                  6, dat, TRUE);
   }
   return 0;
 }
@@ -111,27 +129,45 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 VECTOR
 CmdModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
-              VECTOR dat, bool page_format)   /* save, size, timeout */
+              int cdb_size, VECTOR dat, bool page_format)   /* save, size, timeout */
 {
-  byte cdb[6];
+  byte cdb[10];
   VECTOR cdbvec;
   VECTOR retval;
   int thissize = (common->size != NOSIZE) ? common->size : 0xff;
 
   cdbvec.dat = cdb;
-  cdbvec.len = sizeof(cdb);
+  cdbvec.len = cdb_size;
   retval.dat = NULL;
   retval.len = 0;
 
-  cdb[0] = 0x15;
-  cdb[1] = (page_format ? 1 : 0) << 4;
-  cdb[2] = 0;
-  cdb[3] = 0;
-  cdb[4] = thissize;
-  cdb[5] = 0;
+  switch (cdb_size) {
+  case 6:
+     cdb[0] = 0x15;
+     cdb[1] = (page_format ? 1 : 0) << 4;
+     cdb[2] = 0;
+     cdb[3] = 0;
+     cdb[4] = thissize;
+     cdb[5] = 0;
+     break;
+  case 10:
+     cdb[0] = 0x55;
+     cdb[1] = (page_format ? 1 : 0) << 4;
+     cdb[2] = 0;
+     cdb[3] = 0;
+     cdb[4] = 0;
+     cdb[5] = 0;
+     cdb[6] = 0;
+     cdb[7] = thissize >> 8;
+     cdb[8] = thissize >> 0;
+     cdb[9] = 0;
+     break;
+  default:
+     break;
+  }
   send_cdb(handle, common,
-	   DIRECTION_OUT,
-	   cdbvec,
+           DIRECTION_OUT,
+           cdbvec,
 	   dat,
 	   1.);
   return retval;
