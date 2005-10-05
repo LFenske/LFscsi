@@ -16,12 +16,14 @@ common.c                \
 send_cdb.c              \
 PrintDefaultSub.c       \
 PrintInquirySub.c       \
+PrintModeSenseSub.c     \
 PrintReadPositionSub.c  \
 PrintRequestSenseSub.c  \
 CmdInquiry.c            \
 CmdLoadUnload.c         \
 CmdLocate.c             \
 CmdModeSelect.c         \
+CmdModeSense.c          \
 CmdPreventAllow.c       \
 CmdRead6.c              \
 CmdReadPosition.c       \
@@ -41,6 +43,7 @@ PrintDefault      \
 PrintInquiry      \
 PrintReadPosition \
 PrintRequestSense \
+#PrintModeSense    \
 # this line intentionally left blank
 
 MAINS =             \
