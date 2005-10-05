@@ -150,8 +150,8 @@ PrintModeSenseSub(VECTOR dat)
       }
     case 0x1f:
       {
-        printf("page 0x1f: Device Capabilities (%s)\n", $ps);
         unsigned char $stor, $frMT, $frST, $frIE, $frDT, $exMT, $exST, $exIE, $exDT;
+        printf("page 0x1f: Device Capabilities (%s)\n", $ps);
         $stor = $page[ 0];
         $frMT = $page[ 2];
         $frST = $page[ 3];
