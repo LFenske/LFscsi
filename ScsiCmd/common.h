@@ -16,6 +16,7 @@ typedef struct {
   int size;
   float timeout;
   bool immed;
+  int verbose;
   VECTOR stt;
 } *COMMON_PARAMS;
 

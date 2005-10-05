@@ -13,6 +13,13 @@ send_cdb(SCSI_HANDLE device,
 {
   int status;
   float timeout = (common->timeout > 0.) ? common->timeout : default_timeout;
+  if (common->verbose) {
+     int i;
+     printf("cdb:");
+     for (i=0; i<cdb.len; i++)
+        printf(" %.2x", cdb.dat[i]);
+     printf("\n");
+  }
   status = (device->cdb)(device,
                          dir,
                          cdb.dat, cdb.len,

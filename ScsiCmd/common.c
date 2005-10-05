@@ -11,6 +11,7 @@ common_construct(COMMON_PARAMS *pCommon)
   (*pCommon)->size    = NOSIZE;
   (*pCommon)->timeout = -1.;
   (*pCommon)->immed   = FALSE;
+  (*pCommon)->verbose = 0;
   (*pCommon)->stt.len = 18;
   (*pCommon)->stt.dat = malloc((*pCommon)->stt.len);
 }

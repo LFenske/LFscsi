@@ -39,6 +39,7 @@ char *long_help_common = "\
 -d device: device specifier, overrides $SCSI_DEVICE\n\
 -z size  : number of bytes of data in or out\n\
 -r       : raw output, even if to stdout\n\
+-v level : verbosity level\n\
 ";
 VECTOR dat;
 
@@ -89,13 +90,14 @@ main(int argc, char**argv)
 
   {
     int ch;
-    while ((ch = getopt(argc, argv, "hd:z:it:r")) != -1) {
+    while ((ch = getopt(argc, argv, "hd:z:it:rv:")) != -1) {
       switch (ch) {
       case 'h': help = TRUE; break;
       case 'd': device = optarg; break;
       case 'z': common->size = strtol(optarg, (char**)NULL, 0); break;
       case 'i': common->immed = TRUE; break;
       case 't': common->timeout = atof(optarg); break;
+      case 'v': common->verbose = strtol(optarg, (char**)NULL, 0); break;
       case 'r': raw = TRUE; break;
       case '?':
       default:
