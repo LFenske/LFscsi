@@ -5,3 +5,4 @@ PrintInquiry
 PrintModeSense
 PrintReadPosition
 PrintRequestSense
+*.d
