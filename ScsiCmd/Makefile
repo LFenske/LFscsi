@@ -88,7 +88,7 @@ endif
 
 .PHONY: clean
 clean:
-		-rm -f $(OBJS) $(DEPS) allcommands.h *.map .\#*
+		-rm -f $(OBJS) $(MAINS) $(DEPS) allcommands.h *.map .\#*
 
 .PHONY: clobber
 clobber:	clean
