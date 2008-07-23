@@ -6,7 +6,7 @@
 
 
 #ifdef DEF
-  {CMD_Locate, "locate", LineLocate, DIRECTION_NONE, NULL, "", ""},
+  {CMD_Locate, "locate", LineLocate, DIRECTION_NONE, NULL, "<objid>", ""},
 #endif
 
 
@@ -20,7 +20,7 @@ LineLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
   int objid;
 
   if (argc != 1) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

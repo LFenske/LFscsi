@@ -8,7 +8,7 @@ int
 main(int argc, char**argv)
 {
   VECTOR dat;
-  char *dp;
+  byte *dp;
   int left = 0x10000;
   int thislen;
   bool bighead = FALSE;
@@ -34,7 +34,7 @@ main(int argc, char**argv)
     dp   += thislen;
     left -= thislen;
   }
-  dat.len = dp - (char*)dat.dat;
+  dat.len = dp - dat.dat;
   PrintModeSenseSub(dat, bighead);
   free(dat.dat);
   return 0;

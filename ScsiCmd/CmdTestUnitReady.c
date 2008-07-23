@@ -7,7 +7,7 @@
 
 #ifdef DEF
   {CMD_TestUnitReady, "testunitready", LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
-  {CMD_TestUnitReady, "tur"          , LineTestUnitReady, DIRECTION_NONE, NULL, "", ""},
+  {CMD_TestUnitReady, "tur"          , LineTestUnitReady, DIRECTION_NONE, NULL, "- alias for testunitready", NULL},
 #endif
 
 
@@ -19,7 +19,7 @@ LineTestUnitReady(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

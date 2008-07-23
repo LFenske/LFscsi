@@ -7,7 +7,7 @@
 
 #ifdef DEF
   {CMD_RequestSense, "request_sense", LineRequestSense, DIRECTION_IN, PrintRequestSenseSub, "", ""},
-  {CMD_RequestSense, "rs"           , LineRequestSense, DIRECTION_IN, PrintRequestSenseSub, "", ""},
+  {CMD_RequestSense, "rs"           , LineRequestSense, DIRECTION_IN, PrintRequestSenseSub, "- alias for request_sense", NULL},
 #endif
 
 
@@ -20,7 +20,7 @@ LineRequestSense(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

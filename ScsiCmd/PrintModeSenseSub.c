@@ -21,7 +21,7 @@ myread_init(VECTOR dat)
 
 
 static int
-myread(unsigned char *pC, int len)
+myread(byte *pC, int len)
 {
   int retval;
   retval = len;
@@ -57,12 +57,12 @@ ED(int bit)
 void
 PrintModeSenseSub(VECTOR dat, bool bighead)
 {
-  unsigned char $density, $type;
+  byte $density, $type;
   char *$ps;
   int $spf;
-  char qc[16];
+  byte qc[16];
   int $totlen;
-  unsigned char $medtype, $WPcache, $BDL;
+  byte $medtype, $WPcache, $BDL;
 
   if (dat.dat == NULL)
     return;
@@ -88,7 +88,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
   }
   if ($BDL) {
     int $numblocks, $blocklen;
-    unsigned char *$q;
+    byte *$q;
     $q = malloc($BDL);
     if ($BDL != myread($q, $BDL)) {
       free($q);
@@ -111,10 +111,10 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     free($q);
   }
   while ($totlen >= 0) {
-    unsigned char $q[2];
-    unsigned char *$page;
-    unsigned char subpage = -1;
-    unsigned char $rawtype, $len;
+    byte $q[2];
+    byte *$page;
+    byte subpage = -1;
+    byte $rawtype, $len;
 
     if (2 != myread($q, 2))
       return;
@@ -143,7 +143,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     case 0x1d:
       {
         short $MTad, $MTnm, $STad, $STnm, $IEad, $IEnm, $DTad, $DTnm;
-        unsigned char *pp = $page;
+        byte *pp = $page;
         $MTad = (pp[0] << 8) | (pp[1] << 0); pp += 2;
         $MTnm = (pp[0] << 8) | (pp[1] << 0); pp += 2;
         $STad = (pp[0] << 8) | (pp[1] << 0); pp += 2;
@@ -163,7 +163,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     case 0x1e:
       {
         int $bytenum;
-        unsigned char $rotate, $transport;
+        byte $rotate, $transport;
         printf("page 0x1e: Transport Geometry (%s)\n", $ps);
         for ($bytenum=0; $bytenum < $len; $bytenum += 2) {
           $rotate    = $page[$bytenum + 0];
@@ -173,7 +173,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
       }
     case 0x1f:
       {
-        unsigned char $stor, $frMT, $frST, $frIE, $frDT, $exMT, $exST, $exIE, $exDT;
+        byte $stor, $frMT, $frST, $frIE, $frDT, $exMT, $exST, $exIE, $exDT;
         printf("page 0x1f: Device Capabilities (%s)\n", $ps);
         $stor = $page[ 0];
         $frMT = $page[ 2];
@@ -201,12 +201,12 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
         printf("page 0x30: Additional Delay (%s)\n", $ps);
 
         if ($spf) {
-          unsigned char fulldata[12];
+          byte fulldata[12];
           int delay    ;
           int countnext;
           int period   ;
           int countleft;
-          unsigned char *pp = fulldata;
+          byte *pp = fulldata;
           memset(fulldata, 0, sizeof(fulldata));
           memcpy(fulldata, $page, MIN(sizeof(fulldata), $len));
           delay     = (pp[0] << 16) | (pp[1] << 8) | (pp[2] << 0); pp+=3;

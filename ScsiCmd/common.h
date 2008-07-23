@@ -18,6 +18,7 @@ typedef struct {
   bool immed;
   int verbose;
   VECTOR stt;
+  int cmd;  /* mapped from enum CMD */
 } *COMMON_PARAMS;
 
 typedef struct {

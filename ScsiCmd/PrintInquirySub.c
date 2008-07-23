@@ -264,7 +264,7 @@ lookup_unknown(tabletype *table, int value)
 
 
 char *
-biti(unsigned char flags, int bitnum)
+biti(byte flags, int bitnum)
 {
   return ((flags >> bitnum) & 1) ? "1 " : "0 ";
 }
@@ -281,7 +281,7 @@ myread_init(VECTOR dat)
 
 
 static int
-myread(unsigned char *pC, int len)
+myread(byte *pC, int len)
 {
   int retval;
   retval = len;
@@ -298,8 +298,8 @@ void
 PrintInquirySub(VECTOR dat)
 {
   int i;
-  char qc[16];
-  unsigned char periphtype, rmb, ver, format;
+  byte qc[16];
+  byte periphtype, rmb, ver, format;
 
   if (dat.dat == NULL)
     return;
@@ -315,9 +315,9 @@ PrintInquirySub(VECTOR dat)
   format     = qc[3];
   if (ver == 0) {
     /* this must be vital product data */
-    unsigned char page = rmb;
-    unsigned char pagelen  = format;
-    unsigned char *q;
+    byte page = rmb;
+    byte pagelen  = format;
+    byte *q;
     printf("Inquiry page 0x%.2x: %s\n", page, lookup_unknown(pagecodetable, page));
     q = malloc(pagelen);
     if (pagelen != myread(q, pagelen)) {
@@ -330,7 +330,7 @@ PrintInquirySub(VECTOR dat)
 
     if (0x01 <= page && page <= 0x7f) {
       int asciilen;
-      unsigned char *qp = q;
+      byte *qp = q;
       asciilen = qp[0]; qp++;
       printf("  ASCII information:\n");
       printf("    %.*s\n", asciilen, qp);
@@ -353,14 +353,14 @@ PrintInquirySub(VECTOR dat)
         break;
       case 0x81:
         {
-          unsigned char curopdef, defopdef;
+          byte curopdef, defopdef;
           int i;
           curopdef = q[0];
           defopdef = q[1];
           printf("  Current Operating Definition: %d\n", curopdef);
           printf("  Default Operating Definition: %d, SavImp: %d\n", defopdef & 0x7f, defopdef >> 7);
           for (i=2; i<pagelen; i++) {
-            unsigned char thisop = q[i];
+            byte thisop = q[i];
             printf("  Support Operating Definition: %d, SavImp: %d\n", thisop & 0x7f, thisop >> 7);
           }
         }
@@ -368,7 +368,7 @@ PrintInquirySub(VECTOR dat)
       case 0x82:
         {
           int asciilen;
-          unsigned char *qp = q;
+          byte *qp = q;
           asciilen = qp[0]; qp++;
           printf("  ASCII operating definition description data:\n");
           printf("    %.*s\n", asciilen, qp);
@@ -379,7 +379,7 @@ PrintInquirySub(VECTOR dat)
         break;
       case 0xc0:
         {
-          unsigned char *qp = q;
+          byte *qp = q;
           printf("  Revision:    %.22s\n", qp); qp += 22;
           printf("  Build Date:  %.19s\n", qp); qp += 19;
           printf("  Checksum:    %.14s\n", qp); qp += 14;
@@ -397,7 +397,7 @@ PrintInquirySub(VECTOR dat)
         {
           int i;
           for (i=0; i<pagelen; i++) {
-            unsigned char cmd = q[i];
+            byte cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
                    lookup_unknown(cmdtable, cmd));
           }
@@ -406,7 +406,7 @@ PrintInquirySub(VECTOR dat)
       case 0xe1:
         {
           for (i=0; i<pagelen; i++) {
-            unsigned char cmd = q[i];
+            byte cmd = q[i];
             printf("  Command Code: 0x%.2x (%s)\n", cmd,
                    lookup_unknown(cmdtable, cmd));
           }
@@ -422,8 +422,8 @@ PrintInquirySub(VECTOR dat)
     free(q);
   } else {
     /* this must not be vital product data */
-    unsigned char len, bits;
-    char *q;
+    byte len, bits;
+    byte *q;
     printf("Inquiry\n");
     printf("  Peripheral Device Type: %s", lookup_unknown(periphtypetable, periphtype&0x1f));
     printf(", Peripheral Qualifier: %d\n", periphtype>>5);

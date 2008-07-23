@@ -26,7 +26,7 @@ LineLogSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

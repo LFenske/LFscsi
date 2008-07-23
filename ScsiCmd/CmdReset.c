@@ -19,7 +19,7 @@ LineReset(SCSI_HANDLE handle, COMMON_PARAMS common,
           int argc, char**argv)
 {
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 
@@ -34,7 +34,7 @@ LineResetDevice(SCSI_HANDLE handle, COMMON_PARAMS common,
                 int argc, char**argv)
 {
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

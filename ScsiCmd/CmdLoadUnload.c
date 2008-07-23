@@ -6,8 +6,8 @@
 
 
 #ifdef DEF
-  {CMD_LoadUnload, "load"  , LineLoad  , DIRECTION_NONE, NULL, "", ""},
-  {CMD_LoadUnload, "unload", LineUnload, DIRECTION_NONE, NULL, "", ""},
+  {CMD_LoadUnload, "load"  , LineLoad  , DIRECTION_NONE, NULL, "[0|1]", "1: load; 0: unload"},
+  {CMD_LoadUnload, "unload", LineUnload, DIRECTION_NONE, NULL, "[0|1]", "1: load; 0: unload"},
 #endif
 
 
@@ -26,7 +26,7 @@ LineLoadUnload(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

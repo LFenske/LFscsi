@@ -22,7 +22,7 @@ LineRead6(SCSI_HANDLE handle, COMMON_PARAMS common,
   int length;
 
   if (argc != 2) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

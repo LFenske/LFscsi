@@ -33,6 +33,10 @@ typedef struct {
 } DEFINITION;
 
 
+void usage(void);
+void help(COMMON_PARAMS common);
+
+
 char *short_help_pre = "[-d device] ";
 char *long_help_common = "\
 -h       : print help\n\
@@ -42,6 +46,7 @@ char *long_help_common = "\
 -v level : verbosity level\n\
 ";
 VECTOR dat;
+char *progname;
 
 
 #define LINE
@@ -57,14 +62,49 @@ DEFINITION def[] = {
 };
 
 
+void
+usage(void)
+{
+  DEFINITION *defp;
+  fprintf(stderr, "Execute SCSI commands.\nusage: %s <command> <parameters>\ncommands:\n", progname);
+  for (defp=def; defp->cmd != CMD_LAST; defp++) {
+    fprintf(stderr, "  %s %s\n", defp->name, defp->short_help);
+  }
+}
+
+
+void
+help(COMMON_PARAMS common)
+{
+  int cmdnum = -1;
+  DEFINITION *defp;
+
+  common->stt.len = 0;
+
+  for (defp=def; defp->cmd != CMD_LAST; defp++) {
+    if (common->cmd == defp->cmd) {
+      cmdnum = defp-def;
+      break;
+    }
+  }
+  if (cmdnum < 0) {
+    fprintf(stderr, "internal error - unknown command number: %d\n", common->cmd);
+    usage();
+    exit(-1);
+  }
+
+  fprintf(stderr, "usage: %s %s %s\n%s", progname, defp->name, defp->short_help, defp->long_help);
+}
+
+
 int
 main(int argc, char**argv)
 {
-  /*char *progname = argv[0];*/
   char *device = getenv("SCSI_DEVICE");
+  progname = argv[0];
   SCSI_HANDLE handle;
   COMMON_PARAMS common;
-  bool help = FALSE;
+  bool needhelp = FALSE;
   bool raw = FALSE;
 
   int cmdnum = -1;
@@ -82,17 +122,18 @@ main(int argc, char**argv)
   }
   if (cmdnum < 0) {
     fprintf(stderr, "unknown command: %s\n", *argv);
-    /*stub: usage(progname)*/
+    usage();
     exit(-1);
   }
 
   common_construct(&common);
+  common->cmd = def[cmdnum].cmd;
 
   {
     int ch;
     while ((ch = getopt(argc, argv, "hd:z:it:rv:")) != -1) {
       switch (ch) {
-      case 'h': help = TRUE; break;
+      case 'h': needhelp = TRUE; break;
       case 'd': device = optarg; break;
       case 'z': common->size = strtol(optarg, (char**)NULL, 0); break;
       case 'i': common->immed = TRUE; break;
@@ -102,7 +143,7 @@ main(int argc, char**argv)
       case '?':
       default:
         {
-          /*stub: usage(progname);*/
+          help(common);
           exit(-1);
         }
         break;
@@ -111,6 +152,11 @@ main(int argc, char**argv)
   }
   argc -= optind;
   argv += optind;
+
+  if (needhelp) {
+    help(common);
+    exit(0);
+  }
 
   scsi_open(&handle, device);
 

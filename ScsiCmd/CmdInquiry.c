@@ -6,8 +6,8 @@
 
 
 #ifdef DEF
-  {CMD_Inquiry, "inquiry", LineInquiry, DIRECTION_IN , PrintInquirySub, "[-z size] [-r] [page code]", "page code"},
-  {CMD_Inquiry, "inq"    , LineInquiry, DIRECTION_IN , PrintInquirySub, "[-z size] [-r] [page code]", "page code"},
+  {CMD_Inquiry, "inquiry", LineInquiry, DIRECTION_IN , PrintInquirySub, "[-z size] [-r] [page code]", ""},
+  {CMD_Inquiry, "inq"    , LineInquiry, DIRECTION_IN , PrintInquirySub, "- alias for inquiry", NULL},
 #endif
 
 
@@ -28,7 +28,7 @@ LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

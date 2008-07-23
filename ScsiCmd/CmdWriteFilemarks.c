@@ -7,7 +7,7 @@
 
 #ifdef DEF
   {CMD_WriteFilemarks, "write_filemarks", LineWriteFilemarks, DIRECTION_NONE, NULL, "[number of marks]", ""},
-  {CMD_WriteFilemarks, "wf"             , LineWriteFilemarks, DIRECTION_NONE, NULL, "[number of marks]", ""},
+  {CMD_WriteFilemarks, "wf"             , LineWriteFilemarks, DIRECTION_NONE, NULL, "- alias for write_filemarks", NULL},
 #endif
 
 
@@ -27,7 +27,7 @@ LineWriteFilemarks(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

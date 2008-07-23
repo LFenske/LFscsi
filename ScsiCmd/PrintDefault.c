@@ -8,7 +8,7 @@ int
 main()
 {
   VECTOR dat;
-  char *dp;
+  byte *dp;
   int left = 0x10000;
   int thislen;
   dp = dat.dat = malloc(left);
@@ -16,7 +16,7 @@ main()
     dp   += thislen;
     left -= thislen;
   }
-  dat.len = dp - (char*)dat.dat;
+  dat.len = dp - dat.dat;
   PrintDefaultSub(dat);
   free(dat.dat);
   return 0;

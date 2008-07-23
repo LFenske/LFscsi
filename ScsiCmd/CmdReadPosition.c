@@ -7,7 +7,7 @@
 
 #ifdef DEF
   {CMD_ReadPosition, "read_position", LineReadPosition, DIRECTION_IN, PrintReadPositionSub, "", ""},
-  {CMD_ReadPosition, "rp"           , LineReadPosition, DIRECTION_IN, PrintReadPositionSub, "", ""},
+  {CMD_ReadPosition, "rp"           , LineReadPosition, DIRECTION_IN, PrintReadPositionSub, "- alias for read_position", NULL},
 #endif
 
 
@@ -20,7 +20,7 @@ LineReadPosition(SCSI_HANDLE handle, COMMON_PARAMS common,
                  int argc, char**argv)
 {
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

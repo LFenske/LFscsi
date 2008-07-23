@@ -7,7 +7,7 @@ CMD_ModeSense,
 
 #ifdef DEF
 {CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
-{CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
+{CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "- alias for mode_sense", NULL},
 #endif
 
 
@@ -42,7 +42,7 @@ LineModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
       break;
     case '?':
     default:
-      /*stub: usage(progname);*/
+      help(common);
       break;
     }
   }
@@ -61,7 +61,7 @@ LineModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

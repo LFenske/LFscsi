@@ -7,7 +7,7 @@
 
 #ifdef DEF
   {CMD_ModeSelect, "mode_select", LineModeSelect, DIRECTION_OUT, NULL, "<page format> [<data>]", ""},
-  {CMD_ModeSelect, "select"     , LineModeSelect, DIRECTION_OUT, NULL, "<page format> [<data>]", ""},
+  {CMD_ModeSelect, "select"     , LineModeSelect, DIRECTION_OUT, NULL, "- alias for mode_select", NULL},
   {CMD_ModeSelect, "setblkbuf"  , LineSetBlkBuf , DIRECTION_OUT, NULL, "<block size> <buffer mode>", ""},
 #endif
 
@@ -32,7 +32,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
       break;
     case '?':
     default:
-      /*stub: usage(progname);*/
+      help(common);
       break;
     }
   }
@@ -40,7 +40,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
   argv += optind;
 
   if (argc < 1) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 
@@ -85,11 +85,11 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
   int blocksize = 0;
   int buffermode = 1;
 
-  if (argc) blocksize   = strtol(argv[0], (char**)NULL, 0); argv++; argc--;
-  if (argc) buffermode  = strtol(argv[0], (char**)NULL, 0); argv++; argc--;
+  if (argc) { blocksize  = strtol(argv[0], (char**)NULL, 0); argv++; argc--; }
+  if (argc) { buffermode = strtol(argv[0], (char**)NULL, 0); argv++; argc--; }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 

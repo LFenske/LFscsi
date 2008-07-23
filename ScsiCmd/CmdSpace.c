@@ -21,7 +21,7 @@ LineSpace(SCSI_HANDLE handle, COMMON_PARAMS common,
   int count = 0;
 
   if (argc < 1) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 
@@ -54,7 +54,7 @@ LineSpace(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
   if (code != 3) {
     if (argc < 1) {
-      /*stub: usage(progname);*/
+      help(common);
       return -1;
     } else {
       count = strtol(argv[0], (char**)NULL, 0);
@@ -64,7 +64,7 @@ LineSpace(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   if (argc > 0) {
-    /*stub: usage(progname);*/
+    help(common);
     return -1;
   }
 
