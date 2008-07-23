@@ -130,8 +130,10 @@ main(int argc, char**argv)
   common->cmd = def[cmdnum].cmd;
 
   {
+    bool more = TRUE;
     int ch;
-    while ((ch = getopt(argc, argv, "hd:z:it:rv:")) != -1) {
+    opterr = 0;
+    while (more && (ch = getopt(argc, argv, "hd:z:it:rv:")) != -1) {
       switch (ch) {
       case 'h': needhelp = TRUE; break;
       case 'd': device = optarg; break;
@@ -142,10 +144,9 @@ main(int argc, char**argv)
       case 'r': raw = TRUE; break;
       case '?':
       default:
-        {
-          help(common);
-          exit(-1);
-        }
+	more = FALSE;
+	argc += 1;
+	argv -= 1;
         break;
       }
     }
