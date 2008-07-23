@@ -134,7 +134,7 @@ main()
   int S, NS;
   struct sockaddr_in srv;
   struct sockaddr_in addr;
-  int addr_len = sizeof(addr);
+  socklen_t addr_len = sizeof(addr);
 
   /* S = socket(AF_INET, SOCK_STREAM, (getprotobyname("tcp"))->p_proto); */
   S = socket(AF_INET, SOCK_STREAM, 0);
