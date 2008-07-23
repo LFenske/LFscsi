@@ -110,7 +110,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     printf("  %7d bytes each\n", $blocklen);
     free($q);
   }
-  while ($totlen >= 0) {
+  while ($totlen > 0) {
     byte $q[2];
     byte *$page;
     byte subpage = -1;
