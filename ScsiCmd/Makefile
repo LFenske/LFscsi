@@ -50,6 +50,7 @@ MAINS =             \
 scsi.o              \
 PrintDefault.o      \
 PrintInquiry.o      \
+PrintModeSense.o    \
 PrintReadPosition.o \
 PrintRequestSense.o \
 # this line intentionally left blank
