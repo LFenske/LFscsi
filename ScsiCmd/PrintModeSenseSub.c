@@ -34,6 +34,13 @@ myread(byte *pC, int len)
 }
 
 
+byte *
+myread_ptr()
+{
+  return myread_data.dat;
+}
+
+
 char *
 caps(int bits)
 {
@@ -112,9 +119,12 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
   }
   while ($totlen > 0) {
     byte $q[2];
+    int headsize;
     byte *$page;
     byte subpage = -1;
+    char subpagestr[4] = "";
     byte $rawtype, $len;
+    byte *datastart = myread_ptr();
 
     if (2 != myread($q, 2))
       return;
@@ -127,20 +137,22 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
       subpage = $q[1];
       if (2 != myread($q, 2))
         return;
+      sprintf(subpagestr, "-%.2x", subpage);
       $len    = ($q[0] << 8) | ($q[1] << 0);
       $totlen -= $len+4;
     } else {
       $len     = $q[1];
       $totlen -= $len+2;
     }
+    headsize = myread_ptr()-datastart;
     $page = malloc($len);
     if ($len != myread($page, $len)) {
       free($page);
       return;
     }
 
-    switch ($type) {
-    case 0x1d:
+    switch (($type << 8) | (subpage & 0xff)) {
+    case 0x1dff:
       {
         short $MTad, $MTnm, $STad, $STnm, $IEad, $IEnm, $DTad, $DTnm;
         byte *pp = $page;
@@ -160,7 +172,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
         printf("  IE 0x%.4x %d\n", $IEad, $IEnm);
         printf("  DT 0x%.4x %d\n", $DTad, $DTnm);
       }
-    case 0x1e:
+    case 0x1eff:
       {
         int $bytenum;
         byte $rotate, $transport;
@@ -171,7 +183,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
           printf("  Transport %d is %s\n", $transport, $rotate&1 ? "rotatable" : "non-rotatable");
         }
       }
-    case 0x1f:
+    case 0x1fff:
       {
         byte $stor, $frMT, $frST, $frIE, $frDT, $exMT, $exST, $exIE, $exDT;
         printf("page 0x1f: Device Capabilities (%s)\n", $ps);
@@ -196,7 +208,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
         printf("  exch IE with%s\n", caps($exIE));
         printf("  exch DT with%s\n", caps($exDT));
       }
-    case 0x30:
+    case 0x30ff:
       {
         printf("page 0x30: Additional Delay (%s)\n", $ps);
 
@@ -220,19 +232,41 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
         }
       }
       break;
+    case 0x08ff:
+      {
+	printf("page 0x08: Caching mode page (%s)\n", $ps);
+	printf("  bits: 0x%.2x\n", $page[ 0]);
+	printf("  retention priority, demand read/write: %d/%d\n", ($page[ 1]>>4)&0xf, ($page[ 1]>>0)&0xf);
+	printf("  disable pre-fetch transfer length: 0x%.4x\n", ($page[ 2]<<8)|($page[ 3]<<0));
+	printf("  minimum pre-fetch                : 0x%.4x\n", ($page[ 4]<<8)|($page[ 5]<<0));
+	printf("  maximum pre-fetch                : 0x%.4x\n", ($page[ 6]<<8)|($page[ 7]<<0));
+	printf("  maximum pre-fetch ceiling        : 0x%.4x\n", ($page[ 8]<<8)|($page[ 9]<<0));
+	printf("  bits: 0x%.2x\n", $page[10]);
+	printf("  number of cache segments: 0x%.2x\n", $page[11]);
+	printf("  cache segment size: 0x%.4x\n", ($page[12]<<8)|($page[13]<<0));
+      }
+      break;
+    case 0x0002:
+      {
+	printf("page 0x00-02: Copan Power Subpage (%s)\n", $ps);
+	printf("  version        : %d\n", $page[0]);
+	printf("  total_luns     : %d\n", $page[1]);
+	printf("  max_active_luns: %d\n", $page[2]);
+	printf("  cur_active_luns: %d\n", $page[3]);
+      }
+      break;
     default:
       {
         int $bytenum;
-        printf("page 0x%.2x: (unimplemented) (%s)\n", $type, $ps);
-        printf("%.3x:  %.2x %.2x", 0, $rawtype, $len);
-        for ($bytenum=2; $bytenum-2 < $len; $bytenum++) {
+        printf("page 0x%.2x%s: (unimplemented) (%s)\n", $type, subpagestr, $ps);
+        for ($bytenum=0; $bytenum < $len+headsize; $bytenum++) {
           if ($bytenum % 16 == 0) {
             printf("%.3x:", $bytenum);
           }
           if ($bytenum %  4 == 0) {
             printf(" ");
           }
-          printf(" %.2x", $page[$bytenum-2]);
+          printf(" %.2x", datastart[$bytenum]);
           if ($bytenum % 16 == 15) {
             printf("\n");
           }
@@ -243,6 +277,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
       }
     }
     printf("\n");
+    free($page);
   }
 }
 
