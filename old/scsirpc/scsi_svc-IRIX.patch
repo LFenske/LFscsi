@@ -1,0 +1,62 @@
+*** scsi_svc.c~	Wed Mar 11 13:14:00 1998
+--- scsi_svc.c	Wed Mar 11 13:20:00 1998
+***************
+*** 13,22 ****
+--- 13,34 ----
+  
+  static void scsi_prog_1();
+  
++ #define USE_CHILDREN 1
++ #include <unistd.h>
++ #include <signal.h>
++ #include <sys/types.h>
++ #include <sys/wait.h>
++ void sigchld(int sig) {
++ 	signal(SIGCHLD, sigchld);
++ 	wait(NULL);
++ }
++ 
+  main()
+  {
+  	register SVCXPRT *transp;
+  
++ 	signal(SIGCHLD, sigchld);
++ 
+  	(void) pmap_unset(SCSI_PROG, SCSI_VERS);
+  
+  	transp = svcudp_create(RPC_ANYSOCK);
+***************
+*** 79,84 ****
+--- 91,106 ----
+  		svcerr_noproc(transp);
+  		return;
+  	}
++ 	if (USE_CHILDREN) {
++ 		pid_t pid;
++ 		pid = fork();
++ 		if (pid > 0)
++ 			return;
++ 		if (pid < 0) {
++ 			perror("fork");
++ 			return;
++ 		}
++ 	}
+  	bzero((char *)&argument, sizeof(argument));
+  	if (!svc_getargs(transp, xdr_argument, &argument)) {
+  		svcerr_decode(transp);
+***************
+*** 92,96 ****
+  		fprintf(stderr, "unable to free arguments");
+  		exit(1);
+  	}
+! 	return;
+  }
+--- 114,121 ----
+  		fprintf(stderr, "unable to free arguments");
+  		exit(1);
+  	}
+! 	if (USE_CHILDREN)
+! 		_exit(0);
+! 	else
+! 		return;
+  }

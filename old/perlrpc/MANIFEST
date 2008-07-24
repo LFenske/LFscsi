@@ -1,0 +1,8 @@
+Changes
+INSTALLATION
+MANIFEST
+Makefile.PL
+SCSIRPC.pm
+SCSIRPC.xs
+scsi.c
+test.pl

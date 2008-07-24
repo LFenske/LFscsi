@@ -1,0 +1,76 @@
+*** scsi_svc.c.orig	Thu Mar  5 11:46:54 1998
+--- scsi_svc.c	Thu Mar  5 12:10:35 1998
+***************
+*** 16,21 ****
+--- 16,33 ----
+  #define SIG_PF void(*)(int)
+  #endif
+  
++ 
++ #define USE_CHILDREN 1
++ #include <unistd.h>
++ #include <signal.h>
++ #include <sys/types.h>
++ #include <sys/wait.h>
++ void sigchld(int sig) {
++ 	signal(SIGCHLD, sigchld);
++ 	wait(NULL);
++ }
++ 
++ 
+  static void
+  scsi_prog_1(struct svc_req *rqstp, register SVCXPRT *transp)
+  {
+***************
+*** 48,53 ****
+--- 60,75 ----
+  		svcerr_noproc(transp);
+  		return;
+  	}
++ 	if (USE_CHILDREN) {
++ 		pid_t pid;
++ 		pid = fork();
++ 		if (pid > 0)
++ 			return;
++ 		if (pid < 0) {
++ 			perror("fork");
++ 			return;
++ 		}
++ 	}
+  	(void) memset((char *)&argument, 0, sizeof (argument));
+  	if (!svc_getargs(transp, xdr_argument, (caddr_t) &argument)) {
+  		svcerr_decode(transp);
+***************
+*** 61,73 ****
+  		fprintf(stderr, "unable to free arguments");
+  		exit(1);
+  	}
+! 	return;
+  }
+  
+  int
+  main(int argc, char **argv)
+  {
+  	register SVCXPRT *transp;
+  
+  	(void) pmap_unset(SCSI_PROG, SCSI_VERS);
+  
+--- 83,100 ----
+  		fprintf(stderr, "unable to free arguments");
+  		exit(1);
+  	}
+! 	if (USE_CHILDREN)
+! 		_exit(0);
+! 	else
+! 		return;
+  }
+  
+  int
+  main(int argc, char **argv)
+  {
+  	register SVCXPRT *transp;
++ 
++ 	signal(SIGCHLD, sigchld);
+  
+  	(void) pmap_unset(SCSI_PROG, SCSI_VERS);
+  

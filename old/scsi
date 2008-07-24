@@ -1,0 +1,646 @@
+#!/usr/bin/perl
+# -*- mode: perl -*-
+# $Header$
+
+# TO DO:
+#   option to ignore unit attentions
+#   option to set timeout
+#   command line editing
+# SCSI commands:
+#   Persistent Reserve In
+#   Persistent Reserve Out
+#   Read Attribute
+#   Report Density Support
+#   Report LUNs
+#   Write Attribute
+
+push(@INC, "/usr/lib/perl");
+push(@INC, "/usr/local/lib/perl");
+push(@INC, "/usr/ih/bin");
+push(@INC, "/usr/local/bin");
+push(@INC, "$ENV{'HOME'}/work/scsi");
+unshift(@INC, "/manuf/manuf/bin");
+require "getopts.pl";
+require "abbrev.pl";
+require "scsi.pl";
+
+$progname="scsi";
+$prompt="SCSI> ";
+$dumpchar = 'hexdump -e \'"%07.7_ax " 16/1 "%02x " "\n"\'';
+$dumpchar = 'hexdump -C';
+$dumpchar = "od -txC | sed 's,  , ,g'";
+
+open RAW, ">&", STDOUT;
+
+# fake out -w
+$scsi = 0;	# where the hell is this used?
+$opt_v = 0;
+$q = 0;
+$nosize=-1;
+
+&abbrev(*cmd_abbrevs,
+	'cdb',
+	'cdbr',
+	'cdbw',
+	'change_definition',
+	'clean_wait',
+	'eject',
+        'erase',
+	'exchange_medium',
+	'format',
+	'help',
+	'initialize_element_status', 'ies',
+	'initialize_element_status_with_range', 'ieswr',
+	'inquiry',
+	'load',
+        'locate',
+	'log_sense',
+	'mode_select', 'select',
+	'mode_sense', 'sense',
+	'select1d',
+	'move_medium',
+	'prevent_medium_removal',
+	'allow_medium_removal',
+	'position_to_element',
+	'quit',
+	'read',
+	'read6',
+	'read_block_limits', 'rbl',
+	'read_buffer', 'rb',
+	'read_capacity', 'capacity',
+	'read_cdda',
+	'read_element_status', 'res',
+        'read_position', 'rp',
+	'receive_diagnostic_results', 'rdr',
+	'release',
+	'request_sense', 'rs',
+	'request_volume_element_address', 'rvea',
+	'reserve',
+	'rewind',
+	'rezero_unit', 'ru',
+	'send_diagnostic', 'sd',
+	'send_volume_tag', 'svt',
+	'send_volume_tag_emass', 'svte',
+        'set_capacity', 'sc',
+        'space6',
+	'start_stop_unit',
+	'test_unit_ready', 'tur',
+	'unload',
+        'verify',
+	'write',
+	'write6',
+	'write_buffer', 'wb',
+        'write_filemarks', 'wf',
+	'lcd',
+	'z',
+	);
+
+$interactive = ($#ARGV < 0);
+if ($interactive) {
+    for (;;) {
+	print $prompt;
+	$_ = <STDIN>;
+	@ARGV = split;
+	if (&interpret()) {
+	    last;
+	}
+    }
+    exit 0;
+} else {
+    &interpret();
+    exit 0;
+} # main
+
+
+sub retry {
+    local($key,$asc,$ascq) = @_;
+    printf "key/ASC/ASCQ = %x/%.2x/%.2x\n", $key, $asc, $ascq;
+    sleep 1;
+    return -1;
+}
+
+
+sub iftty {
+    if (-t STDOUT) { open(OUT, "|".$_[1]); binmode OUT; print OUT $_[0]; close OUT; }
+#   if (!$rawout ) { open(OUT, "|".$_[1]); print OUT $_[0]; close OUT; }
+    else           { print $_[0]; }
+}
+
+
+sub cmdline_or_stdin {
+    local($skip) = @_;
+    local(@list);
+    if ($#ARGV >= $skip) {
+	while ($#ARGV >= $skip) {
+	    local($arg) = pop(@ARGV);
+	    if ($arg =~ /^[\'\"]/) {
+		local(@tmplist);
+		if (($c = chop($arg)) ne substr($arg, 0, 1)) {$arg .= $c;}
+		for $i (unpack("C*", substr($arg, 1))) {
+		    push(@tmplist, $i);
+		}
+		unshift(@list, @tmplist);
+	    } else {
+		unshift(@list, &todec($arg));
+	    }
+	}
+	return pack("C*", @list);
+    } else {
+	return join('', <STDIN>);
+    }
+}
+
+
+sub printinquiry_stub {
+    require "printinquiry.pl";
+    &printinquiry(@_);
+}
+
+sub printelstat_stub {
+    require "printelstat.pl";
+    &printelstat(@_);
+}
+
+sub printlogsense_stub {
+    require "printlogsense.pl";
+    &printlogsense(@_);
+}
+
+sub printmodesense_stub {
+    require "printmodesense.pl";
+    &printmodesense(@_);
+}
+
+sub printrequestsense_stub {
+    require "printrequestsense.pl";
+    &printrequestsense(@_);
+}
+
+sub printreadposition_stub {
+    require "printreadposition.pl";
+    &printreadposition(@_);
+}
+
+
+sub usage {
+    print "unrecognized command: $cmd\n";
+    print "usage: $progname [ command ] [ options ] [ parameters ]\n";
+    print '
+options are:
+  -h           : print this help
+  -t<transport>: specify a specific transport (default 0)
+  -e<el type  >: type of element to report on (see below)
+  -p<page ctrl>: page control (see below)
+  -P<param ptr>: parameter pointer
+  -m<mode>     : write buffer mode
+  -b<buffer ID>: write buffer buffer ID
+  -i           : invert cartridge/immediate/device ID
+  -I           : invert second cartridge
+  -v           : report volume tag/IES don\'t read barcode
+  -s           : save changes into non-volatile memory
+  -o<timeout>  : timeout, in seconds
+  -r           : raw output
+  -R           : don\'t ignore unit attentions (key=6)
+  -z<size>     : use this allocation size instead of guessing
+  -n           : don\'t really do it, display what would\'ve been done
+  -d<level>    : change debug level (3 is a nice level)
+  -l<LUN>      : LUN in CDB (default 0)
+  -a           : suppress auto-request-sense on error, if possible
+element types are:
+  0: all element types
+  1: medium transport elements
+  2: storage elements
+  3: import/export elements
+  4: data transfer elements
+element types for reserve command are:
+  0: entire library
+  1: elements as specified by element list
+page control for Log Sense:
+  0: Threshold values
+  1: Cumulative values
+  2: Default threshold values
+  3: Default cumulative values
+page control for Mode Sense:
+  0: Current values
+  1: Changeable values
+  2: Default values
+  3: Saved values
+read/write buffer modes:
+  0: combined header/data
+  1: vendor specific
+  2: data
+  3: descriptor mode (read only)
+  4: download microcode (write only)
+  5: download microcode and save (write only)
+download microcode:
+  wb -b1 -m5 < data
+code field in Space:
+  0: blocks
+  1: filemarks
+  2: sequential filemarks
+  3: end-of-data
+  4: setmarks
+  5: sequential setmarks
+commands are:
+  cdb <cdb>
+  cdbr [-z <size>] <cdb>
+  cdbw <cdblen> <cdb> <data>
+  change_definition [-s] <definition> < <data>
+  clean_wait
+  eject
+  erase [-i] <long>
+  exchange_medium [-i] [-I] [-t <MT number>] <from> <to> <to2>
+  format
+  help
+  initialize_element_status|ies [-v]
+  initialize_element_status_with_range|ieswr [-v] [<range?>] [<start element> <num elements>]
+  inquiry [<page code>]
+  load [-i] [load byte]
+  locate [-i] block_address
+  log_sense [-p<page control>] [-P<parameter pointer>] [-s] <PPC> <page code>
+  mode_select|select [-s] <page format> (reads from stdin)
+  mode_sense|sense [-p<page control>] <page code>
+  select1d [-s] <mtstart> <ststart> <iestart> <dtstart>
+  move_medium [-i] [-t <MT number>] <from> <to>
+  position_to_element [-i] [-t <MT number>] <to>
+  prevent_medium_removal
+  allow_medium_removal
+  read <startblock> <numblocks>
+  read_block_limits|rbl
+  read_buffer|rb -m<mode> [-b<buffer id>] [-P<buffer offset>]
+  read_capacity|capacity
+  read_cdda <starblock> <numblocks>
+  read_element_status|res [-v] [-i] [-e <el type>] [<start element> [<num elements>]]
+  read_position|rp
+  receive_diagnostic_results|rdr
+  release <3rdPty> <3rdPty ID> <Element> <ResID>
+  request_sense|rs
+  request_volume_element_address|rvea
+    [-v] [-e <el type>] [<start element> [<num elements>]]
+  reserve <3rdPty> <3rdPty ID> <Element> <ResID> [<num elems> <elem addr>]...
+  rewind
+  rezero_unit|ru
+  send_diagnostic|sd <PF> <SelfTest> <DevOfL> <UnitOfL> < <data>
+  send_volume_tag|svt
+    [-e <el type>] <start element> <send action code>
+    [<VolId Template> <Min Vol Seq> <Max Vol Seq>]
+  send_volume_tag_emass|svte
+    [-e <el type>] <VolId Template> [<start element>]
+  set_capacity|sc [-i] <numerator>
+  space6 <code> <count>
+  start_stop_unit <LoEj and Start bits>
+  test_unit_ready|tur
+  unload [-i] [load byte]
+  verify [-i] <fixed> <length>
+  write <startblock> <numblocks> < <data>
+  write_buffer|wb -m<mode> [-b<buffer id>] [-P<buffer offset>] < <data>
+  write_filemarks|wf [-i] <number of marks>
+  lcd <linenum> [<value>]
+  quit
+  read6 <SILI-fixed> <length>
+  write6 <fixed> <length> < <data>
+Device file to use is specified in the $DEVICE shell variable.  It must be set.
+';
+}
+
+
+sub interpret {
+    $help=0;
+    $trans=0;
+    $inv=0;
+    $inv2=0;
+    $voltag=0;
+    $eltype=0;
+    $pc=0;
+    $pp=0;
+    $mode=0;
+    $bufid=0;
+    $rawout=0;
+    $keepUA=0;
+    $size=$nosize;
+    $nflag=0;
+    $save=0;
+    $verbose=1;
+    $LUN=0;
+    $noRS=0;
+    undef $timeout;
+    
+    $cmd = $cmd_abbrevs{shift(@ARGV)};
+    undef $opt_h;
+    undef $opt_t;
+    undef $opt_e;
+    undef $opt_p;
+    undef $opt_P;
+    undef $opt_m;
+    undef $opt_b;
+    undef $opt_i;
+    undef $opt_I;
+    undef $opt_v;
+    undef $opt_r;
+    undef $opt_R;
+    undef $opt_z;
+    undef $opt_n;
+    undef $opt_s;
+    undef $opt_d;
+    undef $opt_l;
+    undef $opt_a;
+    undef $opt_o;
+    undef $immed;
+    undef $dvcid;
+    &Getopts('ht:e:p:P:m:b:iIvrRz:nsd:l:ao:');
+    $help   = &todec($opt_h) if ($opt_h);
+    $trans  = &todec($opt_t) if ($opt_t);
+    $eltype = &todec($opt_e) if ($opt_e);
+    $pc     = &todec($opt_p) if ($opt_p);
+    $pp     = &todec($opt_P) if ($opt_P);
+    $mode   = &todec($opt_m) if ($opt_m);
+    $bufid  = &todec($opt_b) if ($opt_b);
+    $inv    = &todec($opt_i) if ($opt_i); $dvcid=$immed = $inv;
+    $inv2   = &todec($opt_I) if ($opt_I);
+    $voltag = &todec($opt_v) if ($opt_v);
+    $rawout = &todec($opt_r) if ($opt_r);
+    $keepUA = &todec($opt_R) if ($opt_R);
+    $size   = &todec($opt_z) if (defined $opt_z);
+    $nflag  = &todec($opt_n) if ($opt_n);
+    $save   = &todec($opt_s) if ($opt_s);
+    $verbose= &todec($opt_d) if ($opt_d);
+    $LUN    = &todec($opt_l) if ($opt_l);
+    $noRS   = &todec($opt_a) if ($opt_a);
+    $timeout= &todec($opt_o) if (defined $opt_o);
+    
+    if ($help) {
+	&usage;
+	exit;
+    }
+
+    if ($keepUA) {
+	&scsi_rs_unregister_callback(6);
+	&scsi_rs_unregister_callback(2, 0x04, 0x01);	# becoming ready
+    } else {
+	&scsi_rs_register_callback("main'retry", 6);
+	&scsi_rs_register_callback("main'retry", 2, 0x04, 0x01);# becoming ready
+    }
+
+    {
+	if ($cmd eq 'help') {
+	    &usage;
+	}
+	elsif ($cmd eq 'cdb') {
+	    &cdb(&cmdline_or_stdin(0));
+	}
+	elsif ($cmd eq 'cdbr') {
+	    $dat = &cdbr(&cmdline_or_stdin(0));
+	    print $dat;
+	}
+	elsif ($cmd eq 'cdbw') {
+	    local($cdblen) = $ARGV[0];
+	    local($cdbdat) = &cmdline_or_stdin(1);
+	    &cdbw(substr($cdbdat,0,$cdblen), substr($cdbdat,$cdblen));
+	}
+	elsif ($cmd eq 'change_definition') {
+	    &change_definition(&cmdline_or_stdin(1), $ARGV[0]);
+	}
+	elsif ($cmd eq 'clean_wait') {
+	    &clean_wait();
+	}
+	elsif ($cmd eq 'eject') {
+	    &eject;
+	}
+	elsif ($cmd eq 'erase') {
+	    &erase($ARGV[0]);
+	}
+	elsif ($cmd eq 'exchange_medium') {
+	    &exchange_medium($ARGV[0],$ARGV[1],$ARGV[2]);
+	}
+	elsif ($cmd eq 'format') {
+	    &format;
+	}
+	elsif ($cmd eq 'initialize_element_status' || $cmd eq 'ies') {
+	    &initialize_element_status;
+	}
+	elsif ($cmd eq 'initialize_element_status_with_range' || $cmd eq 'ieswr') {
+	    if ($#ARGV == 0-1) {
+		&initialize_element_status_with_range(0,0,0);
+	    } elsif ($#ARGV == 2-1) {
+		&initialize_element_status_with_range(1, $ARGV[0], $ARGV[1]);
+	    } else {
+		&initialize_element_status_with_range($ARGV[0],$ARGV[1],$ARGV[2]);
+	    }
+	}
+	elsif ($cmd eq 'inquiry') {
+	    if ($#ARGV == -1) { $dat = &inquiry_smart(0,0); }
+	    else              { $dat = &inquiry_smart(1,$ARGV[0]); }
+#           &iftty($dat, "od -Ax -txCc");
+	    if ($rawout) { print RAW $dat; } else { &printinquiry_stub($dat); }
+	}
+	elsif ($cmd eq 'load' | $cmd eq 'unload') {
+	    &load($ARGV[0]);
+	}
+        elsif ($cmd eq 'locate') {
+            &locate($ARGV[0]);
+        }
+	elsif ($cmd eq 'log_sense') {
+	    $dat = &log_sense_smart($ARGV[0], $ARGV[1]);
+#	    &iftty($dat), "od -Ax -txL");
+	    if ($rawout) { print $dat; } else { &printlogsense_stub($dat); }
+	}
+	elsif ($cmd eq 'mode_select' || $cmd eq 'select') {
+	    &mode_select(&cmdline_or_stdin(1), $ARGV[0]);
+#	    @tmp = <STDIN>;
+#	    &mode_select(join('',@tmp),$ARGV[0]);
+	}
+	elsif ($cmd eq 'mode_sense' || $cmd eq 'sense') {
+	    if ($#ARGV == 0-1) { $ARGV[0] = 0x3f; }
+	    $dat = &mode_sense_smart($ARGV[0]);
+#           &iftty($dat, "od -Ax -txS");
+	    if ($rawout) { print $dat; } else { &printmodesense_stub($dat); }
+	}
+	elsif ($cmd eq 'move_medium') {
+	    &move_medium($ARGV[0], $ARGV[1]);
+	}
+	elsif ($cmd eq 'position_to_element') {
+	    &position_to_element($ARGV[0]);
+	}
+	elsif ($cmd eq 'prevent_medium_removal') {
+	    &prevent_medium_removal(1);
+	}
+	elsif ($cmd eq 'allow_medium_removal') {
+	    &prevent_medium_removal(0);
+	}
+	elsif ($cmd eq 'quit') {
+	    return 1;
+	}
+	elsif ($cmd eq 'read6') {
+	    &iftty(&read6($ARGV[0],$ARGV[1]), $dumpchar);
+	}
+	elsif ($cmd eq 'read') {
+	    &iftty(&read($ARGV[0],$ARGV[1]), $dumpchar);
+	}
+	elsif ($cmd eq 'read_block_limits' || $cmd eq 'rbl') {
+	    &iftty(&read_block_limits, $dumpchar);
+	}
+	elsif ($cmd eq 'read_buffer' || $cmd eq 'rb') {
+	    &iftty(&read_buffer, $dumpchar);
+	}
+	elsif ($cmd eq 'read_capacity' || $cmd eq 'capacity') {
+	    &iftty(&read_capacity, "od -An -tdL");
+	}
+	elsif ($cmd eq 'read_cdda') {
+	    &iftty(&read_cdda($ARGV[0],$ARGV[1]), $dumpchar);
+	}
+	elsif ($cmd eq 'read_element_status' || $cmd eq 'res') {
+	    $ARGV[0] =     0 if (!defined($ARGV[0]));
+	    $ARGV[1] = 65535 if (!defined($ARGV[1]));
+	    $dat = &read_element_status($ARGV[0],$ARGV[1]);
+#           &iftty($dat, "od -Ax -txS");
+	    if ($rawout) { print $dat; } else { &printelstat_stub($dat); }
+	}
+        elsif ($cmd eq 'read_position' || $cmd eq 'rp') {
+#            &iftty(&read_position(), $dumpchar);
+            $dat = &read_position();
+	    if ($rawout) { print $dat; } else { &printreadposition_stub($dat); }
+        }
+	elsif ($cmd eq 'receive_diagnostic_results' || $cmd eq 'rdr') {
+	    &iftty(&receive_diagnostic_results, $dumpchar);
+	}
+	elsif ($cmd eq 'release') {
+	    &release($ARGV[0],$ARGV[1],$ARGV[2],$ARGV[3]);
+	}
+	elsif ($cmd eq 'request_sense' || $cmd eq 'rs') {
+	    $dat = &request_sense;
+#	    &iftty($dat, $dumpchar);
+	    if ($rawout) { print $dat; } else { &printrequestsense_stub($dat); }
+	}
+	elsif ($cmd eq 'request_volume_element_address' || $cmd eq 'rvea') {
+	    $ARGV[0] =     0 if (!defined($ARGV[0]));
+	    $ARGV[1] = 65535 if (!defined($ARGV[1]));
+	    $dat = &request_volume_element_address($ARGV[0], $ARGV[1]);
+	    if ($rawout) { print $dat; } else { &printelstat_stub($dat); }
+	}
+	elsif ($cmd eq 'rewind') {
+	    &rewind;
+	}
+	elsif ($cmd eq 'reserve') {
+	    if ($ARGV[2]) {
+		if ($#ARGV >= 4) {
+		    $dat = '';
+		    for ($i=4; $i<$#ARGV; $i+=2) {
+			$dat .= pack("nnn",
+				     0,
+				     &todec($ARGV[$i+0]),
+				     &xlate($ARGV[$i+1]),
+				     );
+		    }
+		} else {
+		    $dat = join('',<STDIN>);
+		}
+	    } else {
+		$dat = "";
+	    }
+	    &reserve($dat,$ARGV[0],$ARGV[1],$ARGV[2],$ARGV[3]);
+	}
+	elsif ($cmd eq 'rezero_unit' || $cmd eq 'ru') {
+	    &rezero_unit;
+	}
+	elsif ($cmd eq 'send_diagnostic' || $cmd eq 'sd') {
+	    if ($ARGV[1]) {
+		$tmp = '';
+	    } else {
+		$tmp = &cmdline_or_stdin(4);
+	    }
+	    &send_diagnostic($tmp,$ARGV[0],$ARGV[1],$ARGV[2],$ARGV[3]);
+	}
+	elsif ($cmd eq 'send_volume_tag' || $cmd eq 'svt') {
+	    if (@ARGV == 5) {
+		$tmp = pack("A32NN", $ARGV[2], &xlate($ARGV[3]), &xlate($ARGV[4]));
+	    } else {
+		$tmp = join('',<STDIN>);
+	    }
+	    &send_volume_tag($tmp,$ARGV[0],$ARGV[1]);
+	}
+	elsif ($cmd eq 'send_volume_tag_emass' || $cmd eq 'svte') {
+	    $ARGV[1] =     0 if (!defined($ARGV[1]));
+	    $tmp = pack("a32NN", $ARGV[0], 0, 0);
+	    &send_volume_tag($tmp, $ARGV[1], 5);
+	}
+        elsif ($cmd eq 'set_capacity' || $cmd eq 'sc') {
+            &set_capacity(&todec($ARGV[0]));
+        }
+        elsif ($cmd eq 'space6') {
+            &space6($ARGV[0], $ARGV[1]);
+        }
+	elsif ($cmd eq 'start_stop_unit') {
+	    &start_stop_unit($ARGV[0]);
+	}
+	elsif ($cmd eq 'test_unit_ready' || $cmd eq 'tur') {
+	    &test_unit_ready;
+	}
+        elsif ($cmd eq 'verify') {
+            &verify($ARGV[0],$ARGV[1]);
+        }
+	elsif ($cmd eq 'write6') {
+	    &write6(&cmdline_or_stdin(2),$ARGV[0],$ARGV[1]);
+	}
+	elsif ($cmd eq 'write') {
+	    &write(&cmdline_or_stdin(2),$ARGV[0],$ARGV[1]);
+	}
+	elsif ($cmd eq 'write_buffer' || $cmd eq 'wb') {
+	    &write_buffer(&cmdline_or_stdin(0));
+	}
+        elsif ($cmd eq 'write_filemarks' || $cmd eq 'wf') {
+            &write_filemarks($ARGV[0]);
+        }
+	elsif ($cmd eq 'lcd') {
+	    $size = 88;
+	    $dat = &mode_sense(0x22);
+	    ($q,$b0,$b1,$b2,$b3,@l) = unpack("LCCCCA20A20A20A20", $dat);
+	    $b0 &= 0x3f;
+	    if ($ARGV[0] == 0) {
+		$b2 |= 0x80;
+		if ($#ARGV == 1) {
+		    $b2 |=  0x40;
+		} else {
+		    $b2 &= ~0x40;
+		}
+	    } else {
+		if ($#ARGV == 1) {
+		    $b2 |=   1 << (4-$ARGV[0]) ;
+		    $l[$ARGV[0]-1] = $ARGV[1];
+		} else {
+		    $b2 &= ~(1 << (4-$ARGV[0]));
+		}
+	    }
+	    $dat = pack("LCCCCA20A20A20A20", 0,$b0,$b1,$b2,$b3,@l);
+	    &mode_select($dat, 1);
+	}
+	elsif ($cmd eq 'select1d') {
+	    $size = 0x18;
+	    $dat = &mode_sense(0x1d);
+	    ($q,$page,$len,$q,$mtnum,$q,$stnum,$q,$ienum,$q,$dtnum,$q) =
+		unpack("NCCnnnnnnnnn", $dat);
+	    $dat = pack("NCCnnnnnnnnn", 0, $page&0x7f, $len, &todec($ARGV[0]), $mtnum, &todec($ARGV[1]), $stnum, &todec($ARGV[2]), $ienum, &todec($ARGV[3]), $dtnum, 0);
+	    &mode_select($dat, 1);
+	}
+	elsif ($cmd eq 'z') {
+	    if (!defined($device)) {
+		if (($device=$ENV{"DEVICE"}) eq "") {
+		    die "env variable 'DEVICE' must be set.\naborting\n";
+		}
+	    }
+	    &jbscsi(pack("C6",0,0,0,1,0,0));
+#	    &scsi(
+#		  $device,
+#		  0,	# 0=write, 1=read
+#		  pack("C6", 0x00, 0x00, 0x00, 0x10, 0x00, 0x00),
+#		  $dat, 0,
+#		  );
+	}
+	else {
+	    &usage;
+	    return 255;
+	}
+    };
+    return 0;
+    
+}
+

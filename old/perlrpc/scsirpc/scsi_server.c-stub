@@ -1,0 +1,47 @@
+#include "scsi.h"
+
+void dump(char *val, u_int len, char *label);
+
+send_cdb_retval * send_cdb_1_svc(send_cdb_params *params, struct svc_req *svc)
+{
+  static send_cdb_retval retval;
+  printf("SEND_CDB\n");
+  printf("device:  %s\n", params->device);
+  printf("rw:      %c\n", params->rw);
+  dump(params->cdb.cdb_val, params->cdb.cdb_len, "cdb");
+  dump(params->dat.dat_val, params->dat.dat_len, "dat");
+  printf("timeout: %d\n", params->timeout);
+  printf("\n");
+  retval.status = params->timeout;
+  retval.dat.dat_len = params->dat.dat_len;
+  retval.dat.dat_val = malloc(retval.dat.dat_len);
+  memcpy(retval.dat.dat_val, params->dat.dat_val, retval.dat.dat_len);
+  retval.stt.stt_len = params->dat.dat_len;
+  retval.stt.stt_val = malloc(retval.stt.stt_len);
+  memcpy(retval.stt.stt_val, params->dat.dat_val, retval.stt.stt_len);
+  return &retval;
+}
+
+int * reset_1_svc(char **device, struct svc_req *svc)
+{
+  printf("RESET\n");
+  printf("device:  %s\n", *device);
+  printf("\n");
+  return 0;
+}
+
+void dump(char *val, u_int len, char *label)
+{
+  int i;
+  printf("%s:\n", label);
+  for (i=0; i<len; i++) {
+    if (i%16 == 0)
+      printf(" ");
+    printf(" %.2x", (unsigned char)val[i]);
+    if ((i+1)%16 == 0)
+      printf("\n");
+  }
+  if (i%16 != 0)
+    printf("\n");
+}
+

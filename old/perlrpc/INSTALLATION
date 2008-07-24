@@ -1,0 +1,23 @@
+#this may not be truth -- it was blindly swiped from SCSImod
+
+unpack perl-5.004_04
+$ cd perl-5.004_04/ext
+$ mkdir SCSIRPC/RCS
+$ cd SCSIRPC/RCS
+unpack this archive
+$ cd ..
+$ co RCS/*
+make a link from the appropriate Makefile.PL-??? to Makefile.PL
+copy the appropriate config.sh-??? to ../../config.sh
+# you can create config.sh in the perl-5.004_04 directory with:
+#   hosttype=`$HOME/share/bin/hosttype`
+#   destdir=$HOME/local/$hosttype
+#   Configure -des -Dcc=gcc -Dprefix=$destdir -Dcf_email=larry@emass.com -Doptimize=-O3 -Dscriptdir=/home/larry/local/share/bin -Dstartperl='#!:'
+$ chmod +w ../../config.sh
+$ cd ../..
+$ Configure -der
+$ make
+$ make test
+$ make install
+$ cd ext/SCSImod
+$ make install
