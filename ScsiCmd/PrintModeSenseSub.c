@@ -130,9 +130,9 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
       return;
 
     $rawtype = $q[0];
-    $ps = $rawtype >> 7 ? "savable" : "not savable";	/* top bit */
-    $spf = ($rawtype >> 6) & 1;
-    $type = $rawtype & 0x3f;	/* bottom six bits */
+    $ps   = ($rawtype >> 7) & 1 ? "savable" : "not savable";	/* top bit */
+    $spf  = ($rawtype >> 6) & 1;
+    $type = ($rawtype >> 0) & 0x3f;	/* bottom six bits */
     if ($spf) {
       subpage = $q[1];
       if (2 != myread($q, 2))
@@ -235,15 +235,66 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
     case 0x08ff:
       {
 	printf("page 0x08: Caching mode page (%s)\n", $ps);
-	printf("  bits: 0x%.2x\n", $page[ 0]);
+	printf("  IC    : %x\n", ($page[ 0]>>7)&1);
+	printf("  ABPF  : %x\n", ($page[ 0]>>6)&1);
+	printf("  CAP   : %x\n", ($page[ 0]>>5)&1);
+	printf("  DISC  : %x\n", ($page[ 0]>>4)&1);
+	printf("  SIZE  : %x\n", ($page[ 0]>>3)&1);
+	printf("  WCE   : %x\n", ($page[ 0]>>2)&1);
+	printf("  MF    : %x\n", ($page[ 0]>>1)&1);
+	printf("  RCD   : %x\n", ($page[ 0]>>0)&1);
 	printf("  retention priority, demand read/write: %d/%d\n", ($page[ 1]>>4)&0xf, ($page[ 1]>>0)&0xf);
 	printf("  disable pre-fetch transfer length: 0x%.4x\n", ($page[ 2]<<8)|($page[ 3]<<0));
 	printf("  minimum pre-fetch                : 0x%.4x\n", ($page[ 4]<<8)|($page[ 5]<<0));
 	printf("  maximum pre-fetch                : 0x%.4x\n", ($page[ 6]<<8)|($page[ 7]<<0));
 	printf("  maximum pre-fetch ceiling        : 0x%.4x\n", ($page[ 8]<<8)|($page[ 9]<<0));
-	printf("  bits: 0x%.2x\n", $page[10]);
+	printf("  FSW   : %x\n", ($page[10]>>7)&1);
+	printf("  LBCSS : %x\n", ($page[10]>>6)&1);
+	printf("  DRA   : %x\n", ($page[10]>>5)&1);
+	printf("  ??    : %x\n", ($page[10]>>3)&3);
+	printf("  NV_DIS: %x\n", ($page[10]>>0)&1);
 	printf("  number of cache segments: 0x%.2x\n", $page[11]);
 	printf("  cache segment size: 0x%.4x\n", ($page[12]<<8)|($page[13]<<0));
+      }
+      break;
+    case 0x0aff:
+      {
+	printf("page 0x0a: Control mode page (%s)\n", $ps);
+	printf("  tst            : %x\n", ($page[0]>>5)&0x7);
+	printf("  tmf_only       : %x\n", ($page[0]>>4)&0x1);
+	printf("  D_Sense        : %x\n", ($page[0]>>2)&0x1);
+	printf("  GLTSD          : %x\n", ($page[0]>>1)&0x1);
+	printf("  RLEC           : %x\n", ($page[0]>>0)&0x1);
+	printf("  Q alg modifier : %x\n", ($page[1]>>4)&0xf);
+	printf("  QErr           : %x\n", ($page[1]>>1)&0x3);
+	printf("  VS             : %x\n", ($page[2]>>7)&0x1);
+	printf("  rac            : %x\n", ($page[2]>>6)&0x1);
+	printf("  ua_intlck_ctrl : %x\n", ($page[2]>>4)&0x3);
+	printf("  swp            : %x\n", ($page[2]>>3)&0x1);
+	printf("  ato            : %x\n", ($page[3]>>7)&0x1);
+	printf("  tas            : %x\n", ($page[3]>>6)&0x1);
+	printf("  autoload mode  : %x\n", ($page[3]>>0)&0x7);
+	printf("  busy timeout   : %d\n", ($page[6]<<8)|($page[7]<<0));
+	printf("  x selftest time: %d\n", ($page[8]<<8)|($page[9]<<0));
+      }
+      break;
+    case 0x1aff:
+      {
+	printf("page 0x1a: Power Condition mode page (%s)\n", $ps);
+	printf("  idle   : %x\n", ($page[1]>>1)&1);
+	printf("  standby: %x\n", ($page[1]>>0)&1);
+	printf("  idle condition timer   : %d*100ms\n",
+	       ($page[2]<<24)|
+	       ($page[3]<<16)|
+	       ($page[4]<< 8)|
+	       ($page[5]<< 0)|
+	       0);
+	printf("  standby condition timer: %d*100ms\n",
+	       ($page[6]<<24)|
+	       ($page[7]<<16)|
+	       ($page[8]<< 8)|
+	       ($page[9]<< 0)|
+	       0);
       }
       break;
     case 0x0002:
@@ -253,6 +304,13 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
 	printf("  total_luns     : %d\n", $page[1]);
 	printf("  max_active_luns: %d\n", $page[2]);
 	printf("  cur_active_luns: %d\n", $page[3]);
+      }
+      break;
+    case 0x00f0:
+      {
+	printf("page 0x00-F0: Copan Debug Configuration Subpage (%s)\n", $ps);
+	printf("  version        : %d\n", $page[0]);
+	printf("  time_io_secs   : %d\n", ($page[1]<<8)|($page[2]<<0));
       }
       break;
     default:
