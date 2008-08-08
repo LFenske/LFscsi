@@ -19,7 +19,7 @@ LineHelp(SCSI_HANDLE handle, COMMON_PARAMS common,
 {
   common->stt.len = 0;  /* stop main from printing status */
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

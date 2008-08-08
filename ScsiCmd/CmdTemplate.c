@@ -19,13 +19,12 @@ LineTemplate(SCSI_HANDLE handle, COMMON_PARAMS common,
 {
   int param = -1;
 
-  if (argc > 0) {
-    param = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    param = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

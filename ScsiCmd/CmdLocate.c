@@ -19,15 +19,14 @@ LineLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
 {
   int objid;
 
-  if (argc != 1) {
+  if (argc != optind+1) {
     help(common);
     return -1;
   }
 
-  if (argc > 0) {
-    objid = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    objid = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
   {

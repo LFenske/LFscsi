@@ -20,13 +20,13 @@ LineSpace(SCSI_HANDLE handle, COMMON_PARAMS common,
   int code  = 0;
   int count = 0;
 
-  if (argc < 1) {
+  if (argc < optind+1) {
     help(common);
     return -1;
   }
 
-  if (argc > 0) {
-    switch (argv[0][0]) {
+  if (argc > optind) {
+    switch (argv[optind][0]) {
     case 'b':
     case 'B':
     case 'r':
@@ -46,24 +46,22 @@ LineSpace(SCSI_HANDLE handle, COMMON_PARAMS common,
       code = 3;
       break;
     default:
-      code = strtol(argv[0], (char**)NULL, 0);
+      code = strtol(argv[optind], (char**)NULL, 0);
       break;
     }
-    argc--;
-    argv++;
+    optind++;
   }
   if (code != 3) {
-    if (argc < 1) {
+    if (argc < optind+1) {
       help(common);
       return -1;
     } else {
-      count = strtol(argv[0], (char**)NULL, 0);
+      count = strtol(argv[optind], (char**)NULL, 0);
     }
-    argc--;
-    argv++;
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

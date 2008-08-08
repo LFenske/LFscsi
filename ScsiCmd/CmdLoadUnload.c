@@ -19,13 +19,12 @@ LineLoadUnload(SCSI_HANDLE handle, COMMON_PARAMS common,
                int argc, char**argv,
                int toLoad)
 {
-  if (argc > 0) {
-    toLoad = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    toLoad = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

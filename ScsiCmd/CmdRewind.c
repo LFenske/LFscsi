@@ -17,7 +17,7 @@ int
 LineRewind(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

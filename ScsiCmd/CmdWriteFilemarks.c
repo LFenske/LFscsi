@@ -20,13 +20,12 @@ LineWriteFilemarks(SCSI_HANDLE handle, COMMON_PARAMS common,
 {
   int count = 1;
 
-  if (argc > 0) {
-    count = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    count = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }

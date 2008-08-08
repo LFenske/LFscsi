@@ -21,13 +21,12 @@ LineInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
 {
   int page = -1;
 
-  if (argc > 0) {
-    page = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    page = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }
@@ -59,7 +58,7 @@ CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
   byte cdb[6];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
+  int thissize = (common->dat_size != NOSIZE) ? common->dat_size : 0xff;
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
