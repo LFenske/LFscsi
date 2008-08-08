@@ -7,7 +7,7 @@
 
 VECTOR
 CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
-             int cdb_size,
+	     int DBD,
              int page_control,
              int page_code,
              int subpage_code);   /* size, timeout */

@@ -6,7 +6,7 @@ CMD_ModeSense,
 
 
 #ifdef DEF
-{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-c<cdb size>] [-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  cdb size = 6\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
+{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
 {CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "- alias for mode_sense", NULL},
 #endif
 
@@ -24,50 +24,45 @@ int
 LineModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
               int argc, char**argv)
 {
-  int cdb_size     = 6;
+  int DBD          = 0;
   int page_control = 0;
   int page_code    = 0x3f;
   int subpage_code = 0;
 
   int ch;
   /*optreset = 1;*/
-  optind = 0;
-  while ((ch = getopt(argc, argv, "c:p:")) != -1) {
+  while ((ch = getopt(argc, argv, "bp:")) != -1) {
     switch (ch) {
-    case 'c':
-      cdb_size     = strtol(optarg, (char**)NULL, 0);
+    case 'b':
+      DBD = 1;
       break;
     case 'p':
       page_control = strtol(optarg, (char**)NULL, 0);
       break;
     case '?':
     default:
-      help(common);
+      //help(common);
       break;
     }
   }
-  argc -= optind;
-  argv += optind;
 
-  if (argc > 0) {
-    page_code = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    page_code = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
-  if (argc > 0) {
-    subpage_code = strtol(argv[0], (char**)NULL, 0);
-    argc--;
-    argv++;
+  if (argc > optind) {
+    subpage_code = strtol(argv[optind], (char**)NULL, 0);
+    optind++;
   }
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }
 
   {
     dat = CmdModeSense(handle, common,
-                       cdb_size, page_control, page_code, subpage_code);
+                       DBD, page_control, page_code, subpage_code);
   }
   return 0;
 }
@@ -85,7 +80,7 @@ LineModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 VECTOR
 CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
-             int cdb_size,
+	     int DBD,
              int page_control,
              int page_code,
              int subpage_code)   /* size, timeout */
@@ -93,17 +88,19 @@ CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
   byte cdb[10];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : (cdb_size == 6) ? 0xff : 0x1000;
+  int thissize;
 
-  int DBD   = 0;
   int LLBAA = 0;
 
+  if (common->cdb_size == NOSIZE)
+    common->cdb_size = 6;
+  thissize = (common->dat_size != NOSIZE) ? common->dat_size : (common->cdb_size == 6) ? 0xff : 0x1000;
   cdbvec.dat = cdb;
-  cdbvec.len = cdb_size;
+  cdbvec.len = common->cdb_size;
   retval.dat = malloc(thissize);
   retval.len = thissize;
 
-  switch (cdb_size) {
+  switch (common->cdb_size) {
   case 6:
     cdb[0] = 0x1a;
     cdb[1] =
