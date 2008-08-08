@@ -26,6 +26,7 @@ CmdLocate.c             \
 CmdModeSelect.c         \
 CmdModeSense.c          \
 CmdPreventAllow.c       \
+CmdRead.c               \
 CmdRead6.c              \
 CmdReadPosition.c       \
 CmdRequestSense.c       \
@@ -62,7 +63,7 @@ OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
 
 Cmd%.d:	Cmd%.c
-	$(Q)echo building dependencies for $<; set -e; $(CC) -MM $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) -DCOMMAND $< | sed 's@\(.*\)\.o[ :]*@$*.o $@ : @' > $@; [ -s $@ ] || rm -f $@
+	$(Q)echo building dependencies for $<; set -e; $(CC) -MM $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) -DCOMMAND $< | sed 's@\(.*\)\.o[ :]*@Cmd$*.o $@ : @' > $@; [ -s $@ ] || rm -f $@
 
 Cmd%.o:	Cmd%.c
 	$(Q)echo compiling $<;                 set -e; $(CC)     $(WFLAGS) $(CFLAGS) $(INCLUDES) $(DEFINES) -DCOMMAND $< -o $@ -c
