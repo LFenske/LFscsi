@@ -7,18 +7,28 @@ typedef char bool;
 #define FALSE 0
 #define TRUE (!FALSE)
 
+typedef enum flavor {
+  NOFLAVOR,
+  SBC, /* SCSI Block Commands, e.g. disc */
+  SSC, /* SCSI Stream Commands, e.g. tape */
+  SMC, /* SCSI Media Changer Commands */
+  FLAVOR_LAST
+} FLAVOR;
+
 typedef struct {
   byte *dat;
   int   len;
 } VECTOR;
 
 typedef struct {
-  int size;
-  float timeout;
-  bool immed;
-  int verbose;
+  int    dat_size;
+  int    cdb_size;
+  FLAVOR flavor;   /* device-type, when it matters, e.g. READ command */
+  float  timeout;
+  bool   immed;
+  int    verbose;
   VECTOR stt;
-  int cmd;  /* mapped from enum CMD */
+  int    cmd;  /* mapped from enum CMD */
 } *COMMON_PARAMS;
 
 typedef struct {
