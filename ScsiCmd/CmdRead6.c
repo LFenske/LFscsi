@@ -21,13 +21,13 @@ LineRead6(SCSI_HANDLE handle, COMMON_PARAMS common,
   int sili_fixed;
   int length;
 
-  if (argc != 2) {
+  if (argc != optind+2) {
     help(common);
     return -1;
   }
 
-  sili_fixed = strtol(argv[0], (char**)NULL, 0);
-  length     = strtol(argv[1], (char**)NULL, 0);
+  sili_fixed = strtol(argv[optind], (char**)NULL, 0); optind++;
+  length     = strtol(argv[optind], (char**)NULL, 0); optind++;
 
   {
     dat = CmdRead6(handle, common,
@@ -54,7 +54,7 @@ CmdRead6(SCSI_HANDLE handle, COMMON_PARAMS common,
   byte cdb[6];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : length;
+  int thissize = (common->dat_size != NOSIZE) ? common->dat_size : length;
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);

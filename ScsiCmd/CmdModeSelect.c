@@ -22,6 +22,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
   int cdb_size     = 6;
   bool page_format = TRUE;
 
+#if 0
   int ch;
   /*optreset = 1;*/
   optind = 0;
@@ -38,27 +39,28 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
   argc -= optind;
   argv += optind;
+#endif
 
-  if (argc < 1) {
+  if (argc < optind+1) {
     help(common);
     return -1;
   }
 
-  page_format = strtol(argv[0], (char**)NULL, 0) != 0; argv++; argc--;
+  page_format = strtol(argv[optind++], (char**)NULL, 0) != 0;
 
   {
     /*stub: fill in the data */
-    if (argc > 0) {
+    if (argc > optind) {
       int i;
-      dat.len = argc;
+      dat.len = argc-optind;
       dat.dat = malloc(dat.len);
-      for (i=0; i<argc; i++) {
-        dat.dat[i] = strtol(argv[i], (char**)NULL, 0);
+      for (i=0; i<argc-optind; i++) {
+        dat.dat[i] = strtol(argv[i+optind], (char**)NULL, 0);
       }
-      common->size = dat.len;
+      common->dat_size = dat.len;
     } else {
       int bytesgotten = 0;
-      dat.len = (common->size != NOSIZE) ? common->size : 12;
+      dat.len = (common->dat_size != NOSIZE) ? common->dat_size : 12;
       dat.dat = malloc(dat.len);
       while (bytesgotten < dat.len) {
         int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
@@ -85,10 +87,10 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
   int blocksize = 0;
   int buffermode = 1;
 
-  if (argc) { blocksize  = strtol(argv[0], (char**)NULL, 0); argv++; argc--; }
-  if (argc) { buffermode = strtol(argv[0], (char**)NULL, 0); argv++; argc--; }
+  if (argc > optind) { blocksize  = strtol(argv[0], (char**)NULL, 0); optind++;}
+  if (argc > optind) { buffermode = strtol(argv[0], (char**)NULL, 0); optind++;}
 
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }
@@ -96,7 +98,7 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
   {
     dat.len = 12;
     dat.dat = malloc(dat.len);
-    common->size = dat.len;
+    common->dat_size = dat.len;
     dat.dat[ 0] = 0;
     dat.dat[ 1] = 0;
     dat.dat[ 2] = (buffermode&7) << 4;
@@ -134,7 +136,7 @@ CmdModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
   byte cdb[10];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
+  int thissize = (common->dat_size != NOSIZE) ? common->dat_size : 0xff;
 
   cdbvec.dat = cdb;
   cdbvec.len = cdb_size;

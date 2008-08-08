@@ -19,7 +19,7 @@ int
 LineRequestSense(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
-  if (argc > 0) {
+  if (argc > optind) {
     help(common);
     return -1;
   }
@@ -47,7 +47,7 @@ CmdRequestSense(SCSI_HANDLE handle, COMMON_PARAMS common)   /* size, timeout */
   byte cdb[6];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : 18;
+  int thissize = (common->dat_size != NOSIZE) ? common->dat_size : 18;
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);

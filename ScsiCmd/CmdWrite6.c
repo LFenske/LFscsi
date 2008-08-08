@@ -20,26 +20,26 @@ LineWrite6(SCSI_HANDLE handle, COMMON_PARAMS common,
   int fixed;
   int length;
 
-  if (argc < 2) {
+  if (argc < optind+2) {
     help(common);
     return -1;
   }
 
-  fixed      = strtol(argv[0], (char**)NULL, 0); argv++; argc--;
-  length     = strtol(argv[0], (char**)NULL, 0); argv++; argc--;
+  fixed      = strtol(argv[optind], (char**)NULL, 0); optind++;
+  length     = strtol(argv[optind], (char**)NULL, 0); optind++;
 
   {
     /*stub: fill in the data */
-    if (argc > 0) {
+    if (argc > optind) {
       int i;
-      dat.len = argc;
+      dat.len = argc-optind;
       dat.dat = malloc(dat.len);
-      for (i=0; i<argc; i++) {
-        dat.dat[i] = strtol(argv[i], (char**)NULL, 0);
+      for (i=optind; i<argc; i++) {
+        dat.dat[i-optind] = strtol(argv[i], (char**)NULL, 0);
       }
     } else {
       int bytesgotten = 0;
-      dat.len = (common->size != NOSIZE) ? common->size : length;
+      dat.len = (common->dat_size != NOSIZE) ? common->dat_size : length;
       dat.dat = malloc(dat.len);
       while (bytesgotten < dat.len) {
         int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
