@@ -39,11 +39,16 @@ void help(COMMON_PARAMS common);
 
 char *short_help_pre = "[-d device] ";
 char *long_help_common = "\
--h       : print help\n\
--d device: device specifier, overrides $SCSI_DEVICE\n\
--z size  : number of bytes of data in or out\n\
--r       : raw output, even if to stdout\n\
--v level : verbosity level\n\
+The following common switches must come before any subcommand-specific switches.\n\
+-h        : print help\n\
+-d device : device specifier, overrides $SCSI_DEVICE\n\
+-z size   : number of bytes of data in or out\n\
+-c size   : number of preferred bytes in CDB\n\
+-f flavor : device type for command, e.g. SBC, SSC, SMC\n\
+-i        : immediate\n\
+-t seconds: timeout, in seconds\n\
+-r        : raw output, even if to stdout\n\
+-v level  : verbosity level\n\
 ";
 VECTOR dat;
 char *progname;
@@ -93,7 +98,9 @@ help(COMMON_PARAMS common)
     exit(-1);
   }
 
-  fprintf(stderr, "usage: %s %s %s\n%s", progname, defp->name, defp->short_help, defp->long_help);
+  fprintf(stderr, "usage: %s %s %s\n", progname, defp->name, defp->short_help);
+  fprintf(stderr, "%s", long_help_common);
+  fprintf(stderr, "sub-command specific help:\n%s", defp->long_help);
 }
 
 
@@ -130,29 +137,29 @@ main(int argc, char**argv)
   common->cmd = def[cmdnum].cmd;
 
   {
+    char *flavorstr = NULL;
     bool more = TRUE;
     int ch;
     opterr = 0;
-    while (more && (ch = getopt(argc, argv, "hd:z:it:rv:")) != -1) {
+    while (more && (ch = getopt(argc, argv, "hd:z:c:f:it:rv:")) != -1) {
       switch (ch) {
       case 'h': needhelp = TRUE; break;
       case 'd': device = optarg; break;
-      case 'z': common->size = strtol(optarg, (char**)NULL, 0); break;
+      case 'z': common->dat_size = strtol(optarg, (char**)NULL, 0); break;
+      case 'c': common->cdb_size = strtol(optarg, (char**)NULL, 0); break;
+      case 'f': flavorstr = optarg; break;
       case 'i': common->immed = TRUE; break;
       case 't': common->timeout = atof(optarg); break;
-      case 'v': common->verbose = strtol(optarg, (char**)NULL, 0); break;
       case 'r': raw = TRUE; break;
+      case 'v': common->verbose  = strtol(optarg, (char**)NULL, 0); break;
       case '?':
       default:
 	more = FALSE;
-	argc += 1;
-	argv -= 1;
+	optind--;  /* pass this switch on to next stage */
         break;
       }
     }
   }
-  argc -= optind;
-  argv += optind;
 
   if (needhelp) {
     help(common);
