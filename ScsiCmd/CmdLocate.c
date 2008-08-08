@@ -17,7 +17,7 @@ int
 LineLocate(SCSI_HANDLE handle, COMMON_PARAMS common,
             int argc, char**argv)
 {
-  int objid;
+  int objid = -1;
 
   if (argc != optind+1) {
     help(common);
