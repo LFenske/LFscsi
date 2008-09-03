@@ -6,7 +6,7 @@ CMD_ModeSense,
 
 
 #ifdef DEF
-{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-p<page control>] [<page code> [<subpage code>]]", "defaults:\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
+{CMD_ModeSense, "mode_sense", LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "[-p<page control>] [-b] [<page code> [<subpage code>]]", "defaults:\n  page control = 0 (current values)\n  page code = 0x3f (all pages)\n  subpage code = 0\n"},
 {CMD_ModeSense, "sense"     , LineModeSense, DIRECTION_IN, PrintModeSenseSub6, "- alias for mode_sense", NULL},
 #endif
 
