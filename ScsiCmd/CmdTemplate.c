@@ -49,7 +49,7 @@ LineTemplate(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 VECTOR
 CmdTemplate(SCSI_HANDLE handle, COMMON_PARAMS common,
-           bool evpd, int page_code)   /* size, timeout */
+           int param)   /* size, timeout */
 {
   byte cdb[6];
   VECTOR cdbvec;
@@ -68,10 +68,10 @@ CmdTemplate(SCSI_HANDLE handle, COMMON_PARAMS common,
   cdb[4] = thissize;
   cdb[5] = 0;
   send_cdb(handle, common,
-	   DIRECTION_TEMPLATE,
-	   cdbvec,
-	   retval,
-	   5.);
+           common->dir,
+           cdbvec,
+           retval,
+           5.);
   return retval;
 }
 #endif
