@@ -22,6 +22,8 @@ typedef struct {
   int   len;
 } VECTOR;
 
+typedef void (*PRINTSUB)(VECTOR dat);
+
 typedef struct {
   int    dat_size;
   int    cdb_size;
@@ -32,6 +34,7 @@ typedef struct {
   VECTOR stt;
   int    cmd;      /* mapped from enum CMD */
   DIRECTION dir;
+  PRINTSUB printer;
 } *COMMON_PARAMS;
 
 typedef struct {

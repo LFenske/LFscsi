@@ -20,9 +20,6 @@ typedef enum {
 typedef int (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
                     int argc, char**argv);
 
-typedef void (*PRINTSUB)(VECTOR dat);
-
-
 typedef struct {
   CMD cmd;
   char *name;
@@ -134,8 +131,9 @@ main(int argc, char**argv)
   }
 
   common_construct(&common);
-  common->cmd = def[cmdnum].cmd;
-  common->dir = def[cmdnum].dir;
+  common->cmd     = def[cmdnum].cmd    ;
+  common->dir     = def[cmdnum].dir    ;
+  common->printer = def[cmdnum].printer;
 
   {
     char *flavorstr = NULL;
@@ -175,8 +173,8 @@ main(int argc, char**argv)
 
   if (def[cmdnum].dir == DIRECTION_IN) {
     if (!raw && isatty(1)) {
-      if (def[cmdnum].printer != NULL) {
-        (*(def[cmdnum].printer))(dat);
+      if (common->printer != NULL) {
+        (*(common->printer))(dat);
       } else {
         PrintDefaultSub(dat);
       }
