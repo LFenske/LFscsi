@@ -76,6 +76,7 @@ LineModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 #include "ScsiTransport.h"
 #include "common.h"
+#include "PrintModeSenseSub.h"
 #include <stdlib.h>   /* for malloc */
 
 VECTOR
@@ -113,6 +114,7 @@ CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
     cdb[3] = subpage_code;
     cdb[4] = thissize;
     cdb[5] = 0;
+    common->printer = PrintModeSenseSub6;
     break;
   case 10:
     cdb[0] = 0x5a;
@@ -131,6 +133,7 @@ CmdModeSense(SCSI_HANDLE handle, COMMON_PARAMS common,
     cdb[7] = thissize >> 8;
     cdb[8] = thissize >> 0;
     cdb[9] = 0;
+    common->printer = PrintModeSenseSub10;
     break;
   default:
     /*stub: error */
