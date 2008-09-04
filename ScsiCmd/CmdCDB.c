@@ -23,7 +23,7 @@
 
 int
 LineCDB(SCSI_HANDLE handle, COMMON_PARAMS common,
-            int argc, char**argv)
+	int argc, char**argv)
 {
   VECTOR cdb;
 
@@ -53,30 +53,33 @@ LineCDB(SCSI_HANDLE handle, COMMON_PARAMS common,
     }
   }
 
-  if (common->dir == DIRECTION_OUT)
   /* get data */
-  dat.len = common->dat_size;
-  dat.dat = malloc(dat.len);
-  if (argc > optind) {
-    int i;
-    if (argc-optind < dat.len) {
-      fprintf(stderr, "not enough data, got %d, expected %d\n", argc-optind, dat.len);
-      free(dat.dat);
-      return(-2);
-    }
-    for (i=0; i<dat.len; i++) {
-      dat.dat[i] = strtol(argv[optind++], (char**)NULL, 0);
-    }
-  } else {
-    int bytesgotten = 0;
-    while (bytesgotten < dat.len) {
-      int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
-      if (bytesthistime == 0) {
-	fprintf(stderr, "not enough data, got %d, expected %d\n", bytesgotten, dat.len);
+  if (common->dir != DIRECTION_NONE) {
+    dat.len = common->dat_size;
+    dat.dat = malloc(dat.len);
+  }
+  if (common->dir == DIRECTION_OUT) {
+    if (argc > optind) {
+      int i;
+      if (argc-optind < dat.len) {
+	fprintf(stderr, "not enough data, got %d, expected %d\n", argc-optind, dat.len);
 	free(dat.dat);
 	return(-2);
       }
-      bytesgotten += bytesthistime;
+      for (i=0; i<dat.len; i++) {
+	dat.dat[i] = strtol(argv[optind++], (char**)NULL, 0);
+      }
+    } else {
+      int bytesgotten = 0;
+      while (bytesgotten < dat.len) {
+	int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
+	if (bytesthistime == 0) {
+	  fprintf(stderr, "not enough data, got %d, expected %d\n", bytesgotten, dat.len);
+	  free(dat.dat);
+	  return(-2);
+	}
+	bytesgotten += bytesthistime;
+      }
     }
   }
 
@@ -92,6 +95,7 @@ LineCDB(SCSI_HANDLE handle, COMMON_PARAMS common,
 	     cdb,
 	     dat,
 	     5.);
+    free(cdb.dat);
   }
   return 0;
 }
