@@ -6,7 +6,7 @@
 
 
 #ifdef DEF
-  {CMD_Read, "read", LineRead, DIRECTION_IN, PrintDefaultSub, "<SILO-fixed or LBA> <length>", ""},
+  {CMD_Read, "read", LineRead, DIRECTION_IN, PrintDefaultSub, "<SILI-fixed or LBA> <length>", ""},
 #endif
 
 
