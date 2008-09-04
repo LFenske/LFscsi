@@ -54,7 +54,7 @@ CmdTemplate(SCSI_HANDLE handle, COMMON_PARAMS common,
   byte cdb[6];
   VECTOR cdbvec;
   VECTOR retval;
-  int thissize = (common->size != NOSIZE) ? common->size : 0xff;
+  int thissize = (common->dat_size != NOSIZE) ? common->dat_size : 0xff;
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
