@@ -135,6 +135,7 @@ main(int argc, char**argv)
 
   common_construct(&common);
   common->cmd = def[cmdnum].cmd;
+  common->dir = def[cmdnum].dir;
 
   {
     char *flavorstr = NULL;

@@ -19,6 +19,7 @@ PrintInquirySub.c       \
 PrintModeSenseSub.c     \
 PrintReadPositionSub.c  \
 PrintRequestSenseSub.c  \
+CmdCDB.c                \
 CmdHelp.c               \
 CmdInquiry.c            \
 CmdLoadUnload.c         \

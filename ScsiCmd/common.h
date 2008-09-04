@@ -1,6 +1,8 @@
 #ifndef __common_h
 #define __common_h
 
+#include "ScsiTransport.h"
+
 typedef  unsigned char  byte;
 
 typedef char bool;
@@ -28,7 +30,8 @@ typedef struct {
   bool   immed;
   int    verbose;
   VECTOR stt;
-  int    cmd;  /* mapped from enum CMD */
+  int    cmd;      /* mapped from enum CMD */
+  DIRECTION dir;
 } *COMMON_PARAMS;
 
 typedef struct {
