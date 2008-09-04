@@ -6,7 +6,7 @@
 
 
 #ifdef DEF
-  {CMD_Read, "read", LineRead, DIRECTION_IN, PrintDefaultSub, "<SILI-fixed> <length>", ""},
+  {CMD_Read, "read", LineRead, DIRECTION_IN, PrintDefaultSub, "<SILO-fixed or LBA> <length>", ""},
 #endif
 
 
@@ -55,6 +55,9 @@ CmdRead(SCSI_HANDLE handle, COMMON_PARAMS common,
   VECTOR cdbvec;
   VECTOR retval;
   int thissize = (common->dat_size != NOSIZE) ? common->dat_size : length;
+
+  if (common->cdb_size == NOSIZE)
+      common->cdb_size = 6;
 
   cdbvec.dat = cdb;
   cdbvec.len = common->cdb_size;
