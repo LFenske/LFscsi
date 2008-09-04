@@ -30,6 +30,7 @@ CmdPreventAllow.c       \
 CmdRead.c               \
 CmdRead6.c              \
 CmdReadPosition.c       \
+CmdReportLuns.c         \
 CmdRequestSense.c       \
 CmdReset.c              \
 CmdRewind.c             \
