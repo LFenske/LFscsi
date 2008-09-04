@@ -17,6 +17,7 @@ send_cdb.c              \
 PrintDefaultSub.c       \
 PrintInquirySub.c       \
 PrintModeSenseSub.c     \
+PrintReadCapacitySub.c  \
 PrintReadPositionSub.c  \
 PrintRequestSenseSub.c  \
 CmdCDB.c                \
@@ -29,6 +30,7 @@ CmdModeSense.c          \
 CmdPreventAllow.c       \
 CmdRead.c               \
 CmdRead6.c              \
+CmdReadCapacity.c       \
 CmdReadPosition.c       \
 CmdReportLuns.c         \
 CmdRequestSense.c       \
@@ -46,6 +48,7 @@ scsi              \
 PrintDefault      \
 PrintInquiry      \
 PrintModeSense    \
+PrintReadCapacity \
 PrintReadPosition \
 PrintRequestSense \
 # this line intentionally left blank
@@ -55,6 +58,7 @@ scsi.o              \
 PrintDefault.o      \
 PrintInquiry.o      \
 PrintModeSense.o    \
+PrintReadCapacity.o \
 PrintReadPosition.o \
 PrintRequestSense.o \
 # this line intentionally left blank
@@ -119,6 +123,9 @@ PrintInquiry:		PrintInquiry.o      $(LIB)
 			gcc -o $@ $^
 
 PrintModeSense:		PrintModeSense.o    $(LIB)
+			gcc -o $@ $^
+
+PrintReadCapacity:	PrintReadCapacity.o $(LIB)
 			gcc -o $@ $^
 
 PrintReadPosition:	PrintReadPosition.o $(LIB)

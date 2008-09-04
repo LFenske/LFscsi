@@ -3,6 +3,7 @@ allcommands.h
 PrintDefault
 PrintInquiry
 PrintModeSense
+PrintReadCapacity
 PrintReadPosition
 PrintRequestSense
 *.d
