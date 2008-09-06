@@ -1,4 +1,5 @@
 LIB = libscsicmd.a
+INC =    scsicmd.h
 
 CC = gcc
 CWARN= -Wall
@@ -63,7 +64,9 @@ PrintReadPosition.o \
 PrintRequestSense.o \
 # this line intentionally left blank
 
-all: allcommands.h $(LIB) $(PROGS)
+DELIVERABLES = $(INC) $(PROGS)
+
+all: allcommands.h $(INC) $(LIB) $(PROGS)
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
@@ -95,13 +98,18 @@ endif
 endif
 endif
 
+.PHONY: deliver
+deliver:	$(DELIVERABLES)
+		mkdir -p ../deliverables
+		cp -p $(DELIVERABLES) ../deliverables
+
 .PHONY: clean
 clean:
 		-rm -f $(OBJS) $(MAINS) $(DEPS) allcommands.h *.map .\#*
 
 .PHONY: clobber
 clobber:	clean
-		-rm -f $(LIB) $(PROGS) *~ core *.core TAGS
+		-rm -f $(LIB) $(INC) $(PROGS) *~ core *.core TAGS
 
 .PHONY: depend
 depend:
@@ -110,10 +118,10 @@ depend:
 TAGS:
 	emacs-etags *.[ch]*
 
-../ScsiTransport/scsi.o:
-		cd ../ScsiTransport; $(MAKE)
+$(SCSITRANSPORT)/scsitransport.o:
+		cd $(SCSITRANSPORT); $(MAKE)
 
-scsi:		scsi.o ../ScsiTransport/scsi.o $(LIB)
+scsi:		scsi.o $(SCSITRANSPORT)/scsitransport.o $(LIB)
 		gcc -o $@ $^
 
 PrintDefault:		PrintDefault.o      $(LIB)
@@ -136,4 +144,7 @@ PrintRequestSense:	PrintRequestSense.o $(LIB)
 
 allcommands.h:	Makefile
 		echo $(CSRCS) | tr " " "\012" | grep Cmd | while read i; do echo '#include "'$$i'"'; done > allcommands.h
+
+scsicmd.h:	Makefile
+		echo $(CSRCS:.c=.h) | tr " " "\012" | grep -e Cmd -e Print | while read i; do cat $$i; done > scsicmd.h
 

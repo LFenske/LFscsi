@@ -7,3 +7,4 @@ PrintReadCapacity
 PrintReadPosition
 PrintRequestSense
 *.d
+scsicmd.h

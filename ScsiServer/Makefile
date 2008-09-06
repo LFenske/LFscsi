@@ -63,6 +63,9 @@ scsiserver-Template:	$(OBJS-Template)
 
 scsiserver.o:	$(SCSITRANSPORT_H) scsiserver.c
 
+deliver:
+# nothing, for now
+
 clean:
 		rm -f *.o
 
