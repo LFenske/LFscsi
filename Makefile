@@ -3,6 +3,8 @@ all clean clobber scratch depend deliver::
 
 deliver::
 	mkdir -p deliverables
+	$(MAKE) -C ScsiCmd libscsicmd.a
+	$(MAKE) -C ScsiTransport scsitransport.o
 	cp -p ScsiCmd/libscsicmd.a deliverables/libscsicmd.a
 	$(AR) r deliverables/libscsicmd.a ScsiTransport/scsitransport.o
 

@@ -66,7 +66,7 @@ PrintRequestSense.o \
 
 DELIVERABLES = $(INC) $(PROGS)
 
-all: allcommands.h $(INC) $(LIB) $(PROGS)
+all: $(INC) $(LIB) $(PROGS)
 
 OBJS = $(CSRCS:.c=.o)
 DEPS = $(CSRCS:.c=.d) $(MAINS:.o=.d)
@@ -123,6 +123,8 @@ $(SCSITRANSPORT)/scsitransport.o:
 
 scsi:		scsi.o $(SCSITRANSPORT)/scsitransport.o $(LIB)
 		gcc -o $@ $^
+
+scsi.o:		scsi.c allcommands.h
 
 PrintDefault:		PrintDefault.o      $(LIB)
 			gcc -o $@ $^

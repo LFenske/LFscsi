@@ -4,7 +4,8 @@ COPT = -O3
 #CINC = -Iamass-includes
 CFLAGS = $(CWARN) $(COPT) $(CINC)
 
-all:
+all:	scsitransport.o
+scsitransport.o:
 		$(MAKE) scsi-`uname -s | cut -d_ -f1`.o
 		ln -f scsi-`uname -s | cut -d_ -f1`.o scsitransport.o
 
