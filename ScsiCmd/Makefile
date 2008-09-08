@@ -64,7 +64,7 @@ PrintReadPosition.o \
 PrintRequestSense.o \
 # this line intentionally left blank
 
-DELIVERABLES = $(INC) $(PROGS)
+DELIVERABLES = $(INC) common.h send_cdb.h $(PROGS)
 
 all: $(INC) $(LIB) $(PROGS)
 

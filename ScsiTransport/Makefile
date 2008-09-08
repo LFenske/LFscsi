@@ -17,6 +17,7 @@ scsi-CYGWIN.o:		ScsiTransport.h scsi-CYGWIN.c
 scsi-Template.o:	ScsiTransport.h scsi-Template.c
 
 deliver:
+		cp -p ScsiTransport.h ../deliverables
 
 clean:
 		rm -f *.o
