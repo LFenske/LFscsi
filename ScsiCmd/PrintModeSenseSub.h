@@ -1,6 +1,8 @@
 #ifndef __PrintModeSenseSub_h
 #define __PrintModeSenseSub_h
 
+#include "common.h"
+
 void PrintModeSenseSub  (VECTOR dat, bool bighead);
 void PrintModeSenseSub6 (VECTOR dat);
 void PrintModeSenseSub10(VECTOR dat);
