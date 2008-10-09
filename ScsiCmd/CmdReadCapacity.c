@@ -50,7 +50,7 @@ CmdReadCapacity(SCSI_HANDLE handle, COMMON_PARAMS common)   /* size, timeout */
   int thissize = (common->dat_size != NOSIZE) ? common->dat_size : 12;
 
   if (common->cdb_size == NOSIZE)
-    common->cdb_size = 16;
+    common->cdb_size = 10;
 
   cdbvec.dat = cdb;
   cdbvec.len = common->cdb_size;
@@ -92,6 +92,10 @@ CmdReadCapacity(SCSI_HANDLE handle, COMMON_PARAMS common)   /* size, timeout */
     break;
   default:
     /*stub: error message */
+    retval.dat = NULL;
+    retval.len = -1;
+    common->stt.len = 0;
+    return retval;
     break;
   }
   retval.dat = malloc(thissize);
