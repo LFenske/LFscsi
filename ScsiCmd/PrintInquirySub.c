@@ -377,6 +377,94 @@ PrintInquirySub(VECTOR dat)
           printf("    %.*s\n", pagelen - asciilen - 1, qp);
         }
         break;
+      case 0x83:
+        {
+          byte *qp = q;
+          printf("  Device Identification Page:\n");
+	  while (qp < q + pagelen) {
+	    int codeset     = (qp[0]>>0)&0x0f;
+	    int piv         = (qp[1]>>7)&0x01;
+	    int association = (qp[1]>>4)&0x03;
+	    int desigtype   = (qp[1]>>0)&0x0f;
+	    int len         =  qp[3];
+	    if ((association == 1 || association == 2) && piv == 1) {
+	      /* value from table 361 7.5.1 */
+	      printf("    Protocol   : ");
+	      switch ((qp[0]>>4)&0x0f) {
+	      case 0x0: printf("Fibre Channel"                                ); break;
+	      case 0x1: printf("Parallel SCSI"                                ); break;
+	      case 0x2: printf("SSA"                                          ); break;
+	      case 0x3: printf("IEEE 1394"                                    ); break;
+	      case 0x4: printf("SCSI Remote Direct Memory Access Protocol"    ); break;
+	      case 0x5: printf("Internet SCSI (iSCSI)"                        ); break;
+	      case 0x6: printf("SAS Serial SCSI Protocol"                     ); break;
+	      case 0x7: printf("Automation/Drive Interface Transport Protocol"); break;
+	      case 0x8: printf("AT Attachment Interface (ATA/ATAPI)"          ); break;
+	      case 0xf: printf("No specific protocol"                         ); break;
+	      default : printf("reserved"                                     ); break;
+	      }
+	      printf("\n");
+	    }
+#if 0
+	    /* value from 4.4.3 */
+	    printf("    Code set   : ");
+	    switch (codeset) {
+	    case  1: printf("binary"  ); break;
+	    case  2: printf("ASCII"   ); break;
+	    case  3: printf("UTF-8"   ); break;
+	    default: printf("reserved"); break;
+	    }
+	    printf("\n");
+#endif
+#if 0
+	    if ((association ==1 || association == 2)) {
+	      printf("    PIV        : %x\n", piv);
+	    }
+#endif
+	    printf("    Association: ");
+	    switch (association) {
+	    case 0: printf("LUN"     ); break;
+	    case 1: printf("port"    ); break;
+	    case 2: printf("device"  ); break;
+	    case 3: printf("reserved"); break;
+	    }
+	    printf("\n");
+	    printf("    Desig Type : ");
+	    switch (desigtype) {
+	    case  0: printf("Vendor specific"                ); break;
+	    case  1: printf("T10 vendor ID based"            ); break;
+	    case  2: printf("EUI-64 based"                   ); break;
+	    case  3: printf("NAA"                            ); break;
+	    case  4: printf("Relative target port identifier"); break;
+	    case  5: printf("Target port group"              ); break;
+	    case  6: printf("Logical unit group"             ); break;
+	    case  7: printf("MD5 logical unit identifier"    ); break;
+	    case  8: printf("SCSI name string"               ); break;
+	    default: printf("reserved"                       ); break;
+	    }
+	    printf("\n");
+	    printf("   ");
+	    switch (codeset) {
+	    case  2:
+	    case  3:
+	      printf(" \"");
+	      for (i=0; i<len; i++) {
+		printf("%c", qp[4+i]);
+	      }
+	      printf("\"");
+	      break;
+	    default:
+	      for (i=0; i<len; i++) {
+		printf(" %02x", qp[4+i]);
+	      }
+	      break;
+	    }
+	    printf("\n");
+	    printf("\n");
+	    qp += 4 + len;
+	  }
+        }
+        break;
       case 0xc0:
         {
           byte *qp = q;
