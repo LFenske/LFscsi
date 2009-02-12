@@ -6,9 +6,10 @@
 
 
 #ifdef DEF
-  {CMD_ModeSelect, "mode_select", LineModeSelect, DIRECTION_OUT, NULL, "<page format> [<data>]", ""},
-  {CMD_ModeSelect, "select"     , LineModeSelect, DIRECTION_OUT, NULL, "- alias for mode_select", NULL},
-  {CMD_ModeSelect, "setblkbuf"  , LineSetBlkBuf , DIRECTION_OUT, NULL, "<block size> <buffer mode>", ""},
+  {CMD_ModeSelect, "mode_select"  , LineModeSelect, DIRECTION_OUT, NULL, "<page format> [<data>]", ""},
+  {CMD_ModeSelect, "select"       , LineModeSelect, DIRECTION_OUT, NULL, "- alias for mode_select", NULL},
+  {CMD_ModeSelect, "setblkbuf"    , LineSetBlkBuf , DIRECTION_OUT, NULL, "<block size> <buffer mode>", ""},
+  {CMD_ModeSelect, "setctltimeout", LineSetCtlTO  , DIRECTION_OUT, NULL, "<ctl_time_io_secs>", ""},
 #endif
 
 
@@ -87,8 +88,8 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
   int blocksize = 0;
   int buffermode = 1;
 
-  if (argc > optind) { blocksize  = strtol(argv[0], (char**)NULL, 0); optind++;}
-  if (argc > optind) { buffermode = strtol(argv[0], (char**)NULL, 0); optind++;}
+  if (argc > optind) { blocksize  = strtol(argv[optind], (char**)NULL, 0); optind++;}
+  if (argc > optind) { buffermode = strtol(argv[optind], (char**)NULL, 0); optind++;}
 
   if (argc > optind) {
     help(common);
@@ -111,6 +112,43 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
     dat.dat[4+5] = blocksize >> 16;
     dat.dat[4+6] = blocksize >>  8;
     dat.dat[4+7] = blocksize >>  0;
+
+    CmdModeSelect(handle, common,
+                  6, dat, TRUE);
+  }
+  return 0;
+}
+
+
+int
+LineSetCtlTO(SCSI_HANDLE handle, COMMON_PARAMS common,
+	     int argc, char**argv)
+{
+  int ctl_time_io_secs = 90;
+
+  if (argc > optind) { ctl_time_io_secs = strtol(argv[optind], (char**)NULL, 0); optind++;}
+
+  if (argc > optind) {
+    help(common);
+    return -1;
+  }
+
+  {
+    dat.len = 12;
+    dat.dat = malloc(dat.len);
+    common->dat_size = dat.len;
+    dat.dat[ 0] = 11;      /* length after this */
+    dat.dat[ 1] = 0;
+    dat.dat[ 2] = 0;
+    dat.dat[ 3] = 0;
+    dat.dat[4+0] = 0x40;   /* page_code */
+    dat.dat[4+1] = 0xf0;   /* subpage */
+    dat.dat[4+2] = 4 >> 8; /* page_length */
+    dat.dat[4+3] = 4 >> 0; /* page_length */
+    dat.dat[4+4] = 0x00;   /* page_version */
+    dat.dat[4+5] = ctl_time_io_secs >> 8;
+    dat.dat[4+6] = ctl_time_io_secs >> 0;
+    dat.dat[4+7] = 0;      /* fill */
 
     CmdModeSelect(handle, common,
                   6, dat, TRUE);

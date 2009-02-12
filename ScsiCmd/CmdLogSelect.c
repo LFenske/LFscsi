@@ -6,7 +6,7 @@
 
 
 #ifdef DEF
-  {CMD_LogSelect, "template", LineLogSelect, DIRECTION_TEMPLATE, PrintLogSelectSub, "", ""},
+  {CMD_LogSelect, "logselect", LineLogSelect, DIRECTION_OUT, NULL, "", ""},
 #endif
 
 
@@ -15,7 +15,7 @@
 
 int
 LineLogSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
-            int argc, char**argv)
+	      int argc, char**argv)
 {
   int param = -1;
 
