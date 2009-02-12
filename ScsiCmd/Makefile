@@ -2,10 +2,11 @@ LIB = libscsicmd.a
 INC =    scsicmd.h
 
 CC = gcc
-CWARN= -Wall
+CWARN= -Wall -Werror
 COPT = -O3
 CINC = -I$(SCSITRANSPORT)
 CFLAGS = $(CWARN) $(COPT) $(CINC)
+LNFLAGS = -static
 
 SCSITRANSPORT = ../ScsiTransport
 SCSITRANSPORT_H = $(SCSITRANSPORT)/ScsiTransport.h
@@ -122,27 +123,27 @@ $(SCSITRANSPORT)/scsitransport.o:
 		cd $(SCSITRANSPORT); $(MAKE)
 
 scsi:		scsi.o $(SCSITRANSPORT)/scsitransport.o $(LIB)
-		gcc -o $@ $^
+		$(CC) $(LNFLAGS) -o $@ $^
 
 scsi.o:		scsi.c allcommands.h
 
 PrintDefault:		PrintDefault.o      $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintInquiry:		PrintInquiry.o      $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintModeSense:		PrintModeSense.o    $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintReadCapacity:	PrintReadCapacity.o $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintReadPosition:	PrintReadPosition.o $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintRequestSense:	PrintRequestSense.o $(LIB)
-			gcc -o $@ $^
+			$(CC) $(LNFLAGS) -o $@ $^
 
 allcommands.h:	Makefile
 		echo $(CSRCS) | tr " " "\012" | grep Cmd | while read i; do echo '#include "'$$i'"'; done > allcommands.h
