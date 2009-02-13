@@ -25,7 +25,7 @@
 void
 common_construct(COMMON_PARAMS *pCommon)
 {
-  *pCommon = malloc(sizeof(**pCommon));
+  *pCommon = (COMMON_PARAMS)malloc(sizeof(**pCommon));
   (*pCommon)->dat_size = NOSIZE;
   (*pCommon)->cdb_size = NOSIZE;
   (*pCommon)->flavor   = NOFLAVOR;
@@ -33,7 +33,7 @@ common_construct(COMMON_PARAMS *pCommon)
   (*pCommon)->immed    = FALSE;
   (*pCommon)->verbose  = 0;
   (*pCommon)->stt.len  = 18;
-  (*pCommon)->stt.dat  = malloc((*pCommon)->stt.len);
+  (*pCommon)->stt.dat  = (byte*)malloc((*pCommon)->stt.len);
 }
 
 
@@ -45,7 +45,7 @@ common_destruct(COMMON_PARAMS *pCommon)
 }
 
 
-char *
+const char *
 lookup(tabletype *table, int value)
 {
   while (table->key != value && table->data != NULL)

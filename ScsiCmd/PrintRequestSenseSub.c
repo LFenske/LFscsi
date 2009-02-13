@@ -25,7 +25,7 @@
 #include <ctype.h>    /* for isprint */
 
 
-char *keyname[] = {
+const char *keyname[] = {
   "NO SENSE",          /* 0 */
   "RECOVERED ERROR",   /* 1 */
   "NOT READY",         /* 2 */
@@ -584,7 +584,8 @@ PrintRequestSenseSub(VECTOR dat)
 {
   unsigned int code, seg, keyf, info, len, csinfo, asc, ascq, fru, sksv, fieldp;
   unsigned int key = 0x10;
-  char *keyascq = NULL, *ascqname = NULL;
+  char *keyascq = NULL;
+  const char *ascqname = NULL;
 
   printf("Request Sense:\n");
   code   = dat.dat[ 0];
@@ -616,7 +617,7 @@ PrintRequestSenseSub(VECTOR dat)
     printf("  no data\n");
     return;
   }
-  if(len > dat.len - 8)
+  if((signed)len > dat.len - 8)
     len = dat.len - 8;
   if (dat.len>=3) {
     key = keyf & 0xf;
@@ -674,7 +675,7 @@ PrintRequestSenseSub(VECTOR dat)
     }
   }
   if (len>10) {
-    int num, byte;
+    unsigned int num, byte;
     printf("  more bytes:\n");
     printf("    #0012:      ");
     for (num=18; num<len+8; num++) {

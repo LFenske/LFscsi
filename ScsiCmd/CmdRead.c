@@ -79,7 +79,7 @@ CmdRead(SCSI_HANDLE handle, COMMON_PARAMS common,
 
   cdbvec.dat = cdb;
   cdbvec.len = common->cdb_size;
-  retval.dat = malloc(thissize);
+  retval.dat = (byte*)malloc(thissize);
   retval.len = thissize;
 
   switch (common->flavor) {

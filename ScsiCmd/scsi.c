@@ -40,11 +40,11 @@ typedef int (*LINE)(SCSI_HANDLE handle, COMMON_PARAMS common,
 
 typedef struct {
   CMD cmd;
-  char *name;
+  const char *name;
   LINE line;
   DIRECTION dir;
   PRINTSUB printer;
-  char *short_help, *long_help;
+  const char *short_help, *long_help;
 } DEFINITION;
 
 
@@ -52,8 +52,8 @@ void usage(void);
 void help(COMMON_PARAMS common);
 
 
-char *short_help_pre = "[-d device] ";
-char *long_help_common = "\
+const char *short_help_pre = "[-d device] ";
+const char *long_help_common = "\
 The following common switches must come before any subcommand-specific switches.\n\
 -h        : print help\n\
 -d device : device specifier, overrides $SCSI_DEVICE\n\

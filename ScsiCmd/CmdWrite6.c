@@ -51,14 +51,14 @@ LineWrite6(SCSI_HANDLE handle, COMMON_PARAMS common,
     if (argc > optind) {
       int i;
       dat.len = argc-optind;
-      dat.dat = malloc(dat.len);
+      dat.dat = (byte*)malloc(dat.len);
       for (i=optind; i<argc; i++) {
         dat.dat[i-optind] = strtol(argv[i], (char**)NULL, 0);
       }
     } else {
       int bytesgotten = 0;
       dat.len = (common->dat_size != NOSIZE) ? common->dat_size : length;
-      dat.dat = malloc(dat.len);
+      dat.dat = (byte*)malloc(dat.len);
       while (bytesgotten < dat.len) {
         int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
         if (bytesthistime == 0) {

@@ -270,10 +270,10 @@ tabletype cmdtable[] = {
 };
 
 
-char *
+const char *
 lookup_unknown(tabletype *table, int value)
 {
-  char *retval = lookup(table, value);
+  const char *retval = lookup(table, value);
   if (retval == NULL)
     return "unknown";
   else
@@ -281,7 +281,7 @@ lookup_unknown(tabletype *table, int value)
 }
 
 
-char *
+const char *
 biti(byte flags, int bitnum)
 {
   return ((flags >> bitnum) & 1) ? "1 " : "0 ";
@@ -337,7 +337,7 @@ PrintInquirySub(VECTOR dat)
     byte pagelen  = format;
     byte *q;
     printf("Inquiry page 0x%.2x: %s\n", page, lookup_unknown(pagecodetable, page));
-    q = malloc(pagelen);
+    q = (byte*)malloc(pagelen);
     if (pagelen != myread(q, pagelen)) {
       free(q);
       return;
@@ -570,7 +570,7 @@ PrintInquirySub(VECTOR dat)
     len -= 4;
     printf("  Rev level:  %.4s\n", qc);
 
-    q = malloc(len);
+    q = (byte*)malloc(len);
     if (len != myread(q, len)) {
       free(q);
       return;

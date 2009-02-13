@@ -68,7 +68,7 @@ CmdReadPosition(SCSI_HANDLE handle, COMMON_PARAMS common)   /* timeout */
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
-  retval.dat = malloc(20);
+  retval.dat = (byte*)malloc(20);
   retval.len = 20;
 
   cdb[0] = 0x34;

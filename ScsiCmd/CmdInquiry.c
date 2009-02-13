@@ -80,7 +80,7 @@ CmdInquiry(SCSI_HANDLE handle, COMMON_PARAMS common,
 
   cdbvec.dat = cdb;
   cdbvec.len = sizeof(cdb);
-  retval.dat = malloc(thissize);
+  retval.dat = (byte*)malloc(thissize);
   retval.len = thissize;
 
   cdb[0] = 0x12;

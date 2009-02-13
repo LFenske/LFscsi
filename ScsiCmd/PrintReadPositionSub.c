@@ -24,14 +24,14 @@
 #include <string.h>   /* for memcpy */
 
 
-char *
+const char *
 TF(int bit)
 {
   return bit ? "true" : "false";
 }
 
 
-char *
+const char *
 val(int bit)
 {
   return bit ? " (invalid)" : "";

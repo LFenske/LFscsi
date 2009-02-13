@@ -59,7 +59,7 @@ myread_ptr()
 }
 
 
-char *
+const char *
 caps(int bits)
 {
   static char res[4*3+1];
@@ -72,7 +72,7 @@ caps(int bits)
 }
 
 
-char *
+const char *
 ED(int bit)
 {
     return bit ? "ENABLED" : "DISABLED";
@@ -83,7 +83,7 @@ void
 PrintModeSenseSub(VECTOR dat, bool bighead)
 {
   byte $density, $type;
-  char *$ps;
+  const char *$ps;
   int $spf;
   byte qc[16];
   int $totlen;
@@ -114,7 +114,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
   if ($BDL) {
     int $numblocks, $blocklen;
     byte *$q;
-    $q = malloc($BDL);
+    $q = (byte*)malloc($BDL);
     if ($BDL != myread($q, $BDL)) {
       free($q);
       return;
@@ -163,7 +163,7 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
       $totlen -= $len+2;
     }
     headsize = myread_ptr()-datastart;
-    $page = malloc($len);
+    $page = (byte*)malloc($len);
     if ($len != myread($page, $len)) {
       free($page);
       return;

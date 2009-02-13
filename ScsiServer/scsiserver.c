@@ -55,15 +55,15 @@ myread(int fd, void *buf, int nbyte)
       break;
     if (curread == -1)
       return -1;
-    buf       += curread;
-    bytesleft -= curread;
+    buf        = (byte*)buf+curread;
+    bytesleft -=            curread;
   }
   return nbyte-bytesleft;
 }
 
 
 void *
-mymalloc(size_t size, char *errstring)
+mymalloc(size_t size, const char *errstring)
 {
   void *retval;
   if (size) {
@@ -99,7 +99,7 @@ void one_connection(int fd)
     byte qc;
 
     if (!myread(fd, &devlen, 1)     ) break;
-    dev = mymalloc(devlen+1, "dev");
+    dev = (byte*)mymalloc(devlen+1, "dev");
     if (!myread(fd, dev    , devlen)) break; dev[devlen] = '\0';
     if (!myread(fd, &qc    , 1)     ) break;
     rw = (DIRECTION)qc;
@@ -113,13 +113,13 @@ void one_connection(int fd)
       case 'r': case 'R': rw = (datlen==0)?DIRECTION_NONE:DIRECTION_IN ; break;
       case 'w': case 'W': rw = (datlen==0)?DIRECTION_NONE:DIRECTION_OUT; break;
     }
-    dat = mymalloc(datlen, "dat");
+    dat = (byte*)mymalloc(datlen, "dat");
     if (rw == DIRECTION_OUT && dat != NULL) {
       if (!myread(fd, dat    , datlen)) break;
     }
     if (!myread(fd, &sttlen, 4)     ) break; sttlen = ntohl(sttlen);
     if (!myread(fd, &timout, 4)     ) break; timout = ntohl(timout);
-    stt = mymalloc(sttlen, "stt");
+    stt = (byte*)mymalloc(sttlen, "stt");
     scsi_open(&handle, dev);
     status = (handle->cdb)(handle, rw, cdb, cdblen, dat, &datlen, stt, &sttlen, (float)timout);
     (handle->close)(&handle);

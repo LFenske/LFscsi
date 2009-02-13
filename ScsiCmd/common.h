@@ -23,9 +23,14 @@
 
 typedef  unsigned char  byte;
 
+#ifdef __cplusplus
+#define FALSE false
+#define TRUE  true
+#else
 typedef char bool;
 #define FALSE 0
 #define TRUE (!FALSE)
+#endif
 
 typedef enum flavor {
   NOFLAVOR,
@@ -42,7 +47,7 @@ typedef struct {
 
 typedef void (*PRINTSUB)(VECTOR dat);
 
-typedef struct {
+typedef struct COMMON_PARAMS_s {
   int    dat_size;
   int    cdb_size;
   FLAVOR flavor;   /* device-type, when it matters, e.g. READ command */
@@ -57,7 +62,7 @@ typedef struct {
 
 typedef struct {
   int key;
-  char *data;
+  const char *data;
 } tabletype;
 
 #include "send_cdb.h"
@@ -65,6 +70,6 @@ typedef struct {
 
 void common_construct(COMMON_PARAMS *pCommon);
 void  common_destruct(COMMON_PARAMS *pCommon);
-char *lookup(tabletype *table, int value);
+const char *lookup(tabletype *table, int value);
 
 #endif /* __common_h */

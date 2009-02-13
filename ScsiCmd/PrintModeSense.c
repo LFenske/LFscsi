@@ -47,7 +47,7 @@ main(int argc, char**argv)
     }
   }
 
-  dp = dat.dat = malloc(left);
+  dp = dat.dat = (byte*)malloc(left);
   while ((thislen = read(0, dp, left))) {
     dp   += thislen;
     left -= thislen;

@@ -47,7 +47,7 @@ LineCDB(SCSI_HANDLE handle, COMMON_PARAMS common,
 
   /* get CDB */
   cdb.len = common->cdb_size;
-  cdb.dat = malloc(cdb.len);
+  cdb.dat = (byte*)malloc(cdb.len);
   if (argc > optind) {
     int i;
     if (argc-optind < cdb.len) {
@@ -74,7 +74,7 @@ LineCDB(SCSI_HANDLE handle, COMMON_PARAMS common,
   /* get data */
   if (common->dir != DIRECTION_NONE) {
     dat.len = common->dat_size;
-    dat.dat = malloc(dat.len);
+    dat.dat = (byte*)malloc(dat.len);
   }
   if (common->dir == DIRECTION_OUT) {
     if (argc > optind) {

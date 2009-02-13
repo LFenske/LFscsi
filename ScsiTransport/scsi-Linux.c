@@ -195,8 +195,8 @@ scsi_open(SCSI_HANDLE *pDevice, void *whatever)
   int *pfd;
   int retval = 0;
   if (debug) fprintf(stderr, "scsi_open '%s'\n", (char*)whatever);
-  *pDevice = malloc(sizeof(**pDevice));
-  pfd      = malloc(sizeof( *pfd    ));
+  *pDevice = (SCSI_HANDLE)malloc(sizeof(**pDevice));
+  pfd      = (int*)       malloc(sizeof( *pfd    ));
   *pfd = open((char*)whatever, O_RDWR);
   if (*pfd < 0) {
     perror("open device");

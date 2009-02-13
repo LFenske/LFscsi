@@ -29,7 +29,7 @@ main()
   byte *dp;
   int left = 0x10000;
   int thislen;
-  dp = dat.dat = malloc(left);
+  dp = dat.dat = (byte*)malloc(left);
   while ((thislen = read(0, dp, left))) {
     dp   += thislen;
     left -= thislen;

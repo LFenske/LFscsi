@@ -116,7 +116,7 @@ CmdReadCapacity(SCSI_HANDLE handle, COMMON_PARAMS common)   /* size, timeout */
     return retval;
     break;
   }
-  retval.dat = malloc(thissize);
+  retval.dat = (byte*)malloc(thissize);
   retval.len = thissize;
   send_cdb(handle, common,
 	   common->dir,

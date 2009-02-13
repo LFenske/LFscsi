@@ -72,7 +72,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
     if (argc > optind) {
       int i;
       dat.len = argc-optind;
-      dat.dat = malloc(dat.len);
+      dat.dat = (byte*)malloc(dat.len);
       for (i=0; i<argc-optind; i++) {
         dat.dat[i] = strtol(argv[i+optind], (char**)NULL, 0);
       }
@@ -80,7 +80,7 @@ LineModeSelect(SCSI_HANDLE handle, COMMON_PARAMS common,
     } else {
       int bytesgotten = 0;
       dat.len = (common->dat_size != NOSIZE) ? common->dat_size : 12;
-      dat.dat = malloc(dat.len);
+      dat.dat = (byte*)malloc(dat.len);
       while (bytesgotten < dat.len) {
         int bytesthistime = read(0, dat.dat+bytesgotten, dat.len-bytesgotten);
         if (bytesthistime == 0) {
@@ -116,7 +116,7 @@ LineSetBlkBuf(SCSI_HANDLE handle, COMMON_PARAMS common,
 
   {
     dat.len = 12;
-    dat.dat = malloc(dat.len);
+    dat.dat = (byte*)malloc(dat.len);
     common->dat_size = dat.len;
     dat.dat[ 0] = 0;
     dat.dat[ 1] = 0;
@@ -153,7 +153,7 @@ LineSetCtlTO(SCSI_HANDLE handle, COMMON_PARAMS common,
 
   {
     dat.len = 12;
-    dat.dat = malloc(dat.len);
+    dat.dat = (byte*)malloc(dat.len);
     common->dat_size = dat.len;
     dat.dat[ 0] = 11;      /* length after this */
     dat.dat[ 1] = 0;
