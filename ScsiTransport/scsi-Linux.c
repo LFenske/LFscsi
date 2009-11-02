@@ -125,6 +125,10 @@ scsi_cdb(
       }
     }
     if (retval != -1) {
+      if (debug) fprintf(stderr, "sg_xfer host_status = 0x%x\n", hdr.host_status);
+      retval = hdr.host_status;
+    }
+    if (retval != -1) {
       if (debug) fprintf(stderr, "sg_xfer status = 0x%x\n", hdr.status);
       retval = hdr.status;
     }
