@@ -118,17 +118,17 @@ scsi_cdb(
        fprintf(stderr, "\n");
     }
 
-    if (retval != -1) {
+    if (retval == 0) {
       if (ioctl(fd, SG_IO, &hdr) == -1) {
         perror("sg_xfer(ioctl)");
         retval = -1;
       }
     }
-    if (retval != -1) {
+    if (retval == 0) {
       if (debug) fprintf(stderr, "sg_xfer host_status = 0x%x\n", hdr.host_status);
       retval = hdr.host_status;
     }
-    if (retval != -1) {
+    if (retval == 0) {
       if (debug) fprintf(stderr, "sg_xfer status = 0x%x\n", hdr.status);
       retval = hdr.status;
     }
@@ -137,7 +137,7 @@ scsi_cdb(
   *stt_lenp = hdr.sb_len_wr;
   *dat_lenp = hdr.dxfer_len - hdr.resid;
 
-  if (debug && direction == DIRECTION_IN && retval != -1) {
+  if (debug && direction == DIRECTION_IN && retval == 0) {
     int i;
     fprintf(stderr, "SCSI data read:\n");
     for (i=0; i<*dat_lenp; i++)
@@ -145,7 +145,7 @@ scsi_cdb(
     fprintf(stderr, "\n");
   }
 
-  if (stt[0] != 0 || retval == -1) {
+  if (stt[0] != 0 || retval != 0) {
     if (*stt_lenp > 0) {
       if (debug) {
 	int i;
