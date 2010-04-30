@@ -152,21 +152,20 @@ LineSetCtlTO(SCSI_HANDLE handle, COMMON_PARAMS common,
   }
 
   {
-    dat.len = 12;
+    dat.len = 11;
     dat.dat = (byte*)malloc(dat.len);
     common->dat_size = dat.len;
-    dat.dat[ 0] = 11;      /* length after this */
+    dat.dat[ 0] = 10;      /* length after this */
     dat.dat[ 1] = 0;
     dat.dat[ 2] = 0;
     dat.dat[ 3] = 0;
     dat.dat[4+0] = 0x40;   /* page_code */
     dat.dat[4+1] = 0xf0;   /* subpage */
-    dat.dat[4+2] = 4 >> 8; /* page_length */
-    dat.dat[4+3] = 4 >> 0; /* page_length */
+    dat.dat[4+2] = 3 >> 8; /* page_length */
+    dat.dat[4+3] = 3 >> 0; /* page_length */
     dat.dat[4+4] = 0x00;   /* page_version */
     dat.dat[4+5] = ctl_time_io_secs >> 8;
     dat.dat[4+6] = ctl_time_io_secs >> 0;
-    dat.dat[4+7] = 0;      /* fill */
 
     CmdModeSelect(handle, common,
                   6, dat, TRUE);
