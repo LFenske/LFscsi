@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008  Larry Fenske
+ * Copyright (C) 2008,2011  Larry Fenske
  * 
  * This file is part of LFscsi.
  * 
@@ -197,7 +197,8 @@ main(int argc, char**argv)
         PrintDefaultSub(dat);
       }
     } else {
-      write(1, dat.dat, dat.len);
+      int ret = write(1, dat.dat, dat.len);
+      ret = ret;
     }
     free(dat.dat);
   }
