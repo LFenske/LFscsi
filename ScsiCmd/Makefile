@@ -1,4 +1,4 @@
-# Copyright (C) 2008  Larry Fenske
+# Copyright (C) 2008-2011  Larry Fenske
 # 
 # This file is part of LFscsi.
 # 
@@ -38,6 +38,7 @@ PrintInquirySub.c       \
 PrintModeSenseSub.c     \
 PrintReadCapacitySub.c  \
 PrintReadPositionSub.c  \
+PrintReportTargetPortGroupsSub.c \
 PrintRequestSenseSub.c  \
 CmdCDB.c                \
 CmdHelp.c               \
@@ -52,6 +53,7 @@ CmdRead6.c              \
 CmdReadCapacity.c       \
 CmdReadPosition.c       \
 CmdReportLuns.c         \
+CmdReportTargetPortGroups.c \
 CmdRequestSense.c       \
 CmdReset.c              \
 CmdRewind.c             \
@@ -69,6 +71,7 @@ PrintInquiry      \
 PrintModeSense    \
 PrintReadCapacity \
 PrintReadPosition \
+PrintReportTargetPortGroups \
 PrintRequestSense \
 # this line intentionally left blank
 
@@ -79,6 +82,7 @@ PrintInquiry.o      \
 PrintModeSense.o    \
 PrintReadCapacity.o \
 PrintReadPosition.o \
+PrintReportTargetPortGroups.o \
 PrintRequestSense.o \
 # this line intentionally left blank
 
@@ -157,6 +161,9 @@ PrintReadCapacity:	PrintReadCapacity.o $(LIB)
 			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintReadPosition:	PrintReadPosition.o $(LIB)
+			$(CC) $(LNFLAGS) -o $@ $^
+
+PrintReportTargetPortGroups:	PrintReportTargetPortGroups.o $(LIB)
 			$(CC) $(LNFLAGS) -o $@ $^
 
 PrintRequestSense:	PrintRequestSense.o $(LIB)

@@ -5,6 +5,7 @@ PrintInquiry
 PrintModeSense
 PrintReadCapacity
 PrintReadPosition
+PrintReportTargetPortGroups
 PrintRequestSense
 *.d
 scsicmd.h
