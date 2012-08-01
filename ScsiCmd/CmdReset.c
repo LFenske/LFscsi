@@ -83,6 +83,7 @@ CmdReset(SCSI_HANDLE handle, COMMON_PARAMS common,
   retval.len = 0;
   common->stt.len = 0;
   status = (handle->reset)(handle, level);
+  status = status; /* remove warning */
   return retval;
 }
 #endif

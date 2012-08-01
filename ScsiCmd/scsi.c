@@ -176,6 +176,7 @@ main(int argc, char**argv)
         break;
       }
     }
+    flavorstr = flavorstr; /* remove warning */
   }
 
   if (needhelp) {

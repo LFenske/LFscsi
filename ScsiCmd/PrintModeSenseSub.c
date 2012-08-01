@@ -87,7 +87,8 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
   int $spf;
   byte qc[16];
   int $totlen;
-  byte $medtype, $WPcache, $BDL;
+  //byte $medtype, $WPcache; /* remove warning */
+  byte $BDL;
 
   if (dat.dat == NULL)
     return;
@@ -98,16 +99,16 @@ PrintModeSenseSub(VECTOR dat, bool bighead)
      if (8 != myread(qc, 8))
         return;
      $totlen  = (qc[0] << 8) | (qc[1] << 0);
-     $medtype = qc[2];
-     $WPcache = qc[3];
+     //$medtype = qc[2];
+     //$WPcache = qc[3];
      $BDL     = (qc[6] << 8) | (qc[7] << 0);
      $totlen -= 6;
   } else {
      if (4 != myread(qc, 4))
         return;
      $totlen  = qc[0];
-     $medtype = qc[1];
-     $WPcache = qc[2];
+     //$medtype = qc[1];
+     //$WPcache = qc[2];
      $BDL     = qc[3];
      $totlen -= 3;
   }

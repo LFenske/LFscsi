@@ -97,6 +97,7 @@ void one_connection(int fd)
     byte status;
     long q;
     byte qc;
+    int writeresult; /* remove warning */
 
     if (!myread(fd, &devlen, 1)     ) break;
     dev = (byte*)mymalloc(devlen+1, "dev");
@@ -125,14 +126,15 @@ void one_connection(int fd)
     (handle->close)(&handle);
     /*debug*/fprintf(stderr, "server: datlen = %d\n", datlen);/**/
     if (rw != DIRECTION_IN) datlen = 0;
-    write(fd, &status, 1);
+    writeresult = write(fd, &status, 1);
     q = htonl(datlen);
-    write(fd, &q     , 4); write(fd, dat, datlen);
+    writeresult = write(fd, &q     , 4); writeresult = write(fd, dat, datlen);
     q = htonl(sttlen);
-    write(fd, &q     , 4); write(fd, stt, sttlen);
+    writeresult = write(fd, &q     , 4); writeresult = write(fd, stt, sttlen);
     free(stt);
     free(dat);
     free(dev);
+    writeresult = writeresult; /* remove warning */
   }
   close(fd);
 }

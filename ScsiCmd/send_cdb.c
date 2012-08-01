@@ -45,6 +45,7 @@ send_cdb(SCSI_HANDLE device,
                          dat.dat, &dat.len,
                          common->stt.dat, &common->stt.len,
                          timeout);
+  status = status; /* remove warning */
 }
 
 
