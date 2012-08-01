@@ -21,10 +21,6 @@
 #include "common.h"
 #include <stdlib.h>   /* for malloc, free, NULL */
 
-#ifdef __cplusplus
-using namespace LFscsi;
-#endif
-
 
 void
 common_construct(COMMON_PARAMS *pCommon)

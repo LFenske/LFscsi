@@ -24,10 +24,6 @@
 #include <string.h>   /* for memcpy */
 #include <ctype.h>    /* for isprint */
 
-#ifdef __cplusplus
-using namespace LFscsi;
-#endif
-
 
 void
 PrintDefaultSub(VECTOR dat)

@@ -27,10 +27,6 @@
 
 #define MIN(__a, __b)  ((__a) < (__b) ? (__a) : (__b))
 
-#ifdef __cplusplus
-using namespace LFscsi;
-#endif
-
 
 static VECTOR myread_data;
 

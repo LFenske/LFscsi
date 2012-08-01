@@ -21,10 +21,6 @@
 
 #include "common.h"
 
-#ifdef __cplusplus
-using namespace LFscsi;
-#endif
-
 void PrintReadCapacitySub  (VECTOR dat, bool longdata);
 void PrintReadCapacitySub10(VECTOR dat);
 void PrintReadCapacitySub16(VECTOR dat);

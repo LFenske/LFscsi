@@ -23,10 +23,6 @@
 #include <stdlib.h>   /* for malloc */
 #include <string.h>   /* for memcpy */
 
-#ifdef __cplusplus
-using namespace LFscsi;
-#endif
-
 
 tabletype periphtypetable[] = {
   {0x00, "Direct Access"},

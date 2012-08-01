@@ -31,20 +31,12 @@
 #endif
 
 
-#ifdef __cplusplus
-namespace LFscsi {
-#endif
-
 void send_cdb(SCSI_HANDLE device,
               COMMON_PARAMS common,
 	      DIRECTION dir,
 	      VECTOR cdb,
 	      VECTOR dat,
 	      float default_timeout);
-
-#ifdef __cplusplus
-}
-#endif
 
 
 #endif /* __send_cdb_h */
