@@ -18,7 +18,7 @@
 LIB = libscsicmd.a
 INC =    scsicmd.h
 
-CC = gcc
+CC = g++
 CWARN= -Wall -Werror
 COPT = -O3
 CINC = -I$(SCSITRANSPORT)

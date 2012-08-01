@@ -25,6 +25,10 @@
 #include <string.h>   /* for memcpy, strcat */
 #include <ctype.h>    /* for isprint */
 
+#ifdef __cplusplus
+using namespace LFscsi;
+#endif
+
 
 void
 PrintReadCapacitySub(VECTOR dat, bool longdata)

@@ -21,6 +21,10 @@
 
 #include "ScsiTransport.h"
 
+#ifdef __cplusplus
+namespace LFscsi {
+#endif
+
 typedef  unsigned char  byte;
 
 #ifdef __cplusplus
@@ -71,5 +75,10 @@ typedef struct {
 void common_construct(COMMON_PARAMS *pCommon);
 void  common_destruct(COMMON_PARAMS *pCommon);
 const char *lookup(tabletype *table, int value);
+
+#ifdef __cplusplus
+} // namespace end
+//using namespace LFscsi;
+#endif
 
 #endif /* __common_h */

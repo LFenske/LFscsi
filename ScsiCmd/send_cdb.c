@@ -21,6 +21,10 @@
 #include "send_cdb.h"
 #include <stdio.h>   /* for printf */
 
+#ifdef __cplusplus
+using namespace LFscsi;
+#endif
+
 
 void
 send_cdb(SCSI_HANDLE device,
