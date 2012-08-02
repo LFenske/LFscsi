@@ -86,7 +86,8 @@ PrintReportTargetPortGroups.o \
 PrintRequestSense.o \
 # this line intentionally left blank
 
-DELIVERABLES = $(INC) common.h send_cdb.h $(PROGS)
+DELIVERABLE_INC = $(INC) common.h send_cdb.h
+DELIVERABLE_BIN = $(PROGS)
 
 all: $(INC) $(LIB) $(PROGS)
 
@@ -121,9 +122,11 @@ endif
 endif
 
 .PHONY: deliver
-deliver:	$(DELIVERABLES)
-		mkdir -p ../deliverables
-		cp -p $(DELIVERABLES) ../deliverables
+deliver:	$(DELIVERABLE_INC) $(DELIVERABLE_BIN)
+		mkdir -p ../deliverables/include
+		mkdir -p ../deliverables/bin
+		cp -p $(DELIVERABLE_INC) ../deliverables/include
+		cp -p $(DELIVERABLE_BIN) ../deliverables/bin
 
 .PHONY: clean
 clean:
