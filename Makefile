@@ -29,18 +29,20 @@ rpm:	$(PKGNAME).spec
 
 $(PKGNAME).spec:	Makefile clobber deliver
 	{	\
-	echo License: GPL;	\
-	echo Summary: low-level SCSI tools;	\
-	echo %define version $(VERSION);	\
 	echo Name: $(PKGNAME);	\
-	echo Prefix: /usr/local;	\
-	echo Provides: $(PKGNAME);	\
+	echo Version: $(VERSION);	\
 	echo Release: 1;	\
-	echo Source: $(PKGNAME)-%{version}.tar.gz;	\
-	echo Version: %{version};	\
-	echo Buildroot: /tmp/$(PKGNAME);	\
+	echo Summary: low-level SCSI tools;	\
 	echo %description;	\
 	echo Low-level SCSI tools to send CDBs to SCSI devices.;	\
+	echo ;	\
+	echo Copyright: GPL;	\
+	echo Vendor: Larry Fenske;	\
+	echo Group: Applications/System;	\
+	echo Packager: 'Larry Fenske <LFscsi@towanda.com>';	\
+	echo ExclusiveOS: Linux cygwin
+	echo Prefix: /usr/local;	\
+	echo Source: $(PKGNAME)-$(VERSION).tar.gz	echo Buildroot: /tmp/$(PKGNAME);	\
 	echo ;	\
 	echo %prep;	\
 	echo %setup -q;	\
