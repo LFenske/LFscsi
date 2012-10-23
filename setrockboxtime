@@ -10,4 +10,4 @@ second=$(date +%S | sed 's,^0*,,')
 
 : $((day--))
 
-deliverables/scsi cdbw -v2 -d $device -c 10 -z 8  0x3b 1 0 0xc 0 0 0 0 0xc 0   $((year/256)) $((year%256)) $((day/256)) $((day%256)) 0 $hour $minute $second
+deliverables/bin/scsi cdbw -v2 -d $device -c 10 -z 8  0x3b 1 0 0xc 0 0 0 0 0xc 0   $((year/256)) $((year%256)) $((day/256)) $((day%256)) 0 $hour $minute $second
